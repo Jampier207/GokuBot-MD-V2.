@@ -24,9 +24,6 @@ export default {
       Ruleta: Math.max(0, (user.rtCooldown || 0) - now),
       Steal: Math.max(0, (user.roboCooldown || 0) - now),
       Ppt: Math.max(0, (user.pptCooldown || 0) - now),
-      Weekly: Math.max(0, (user.lastWeekly || 0) + 7 * oneDay - now),
-      Monthly: Math.max(0, (user.lastMonthly || 0) + 30 * oneDay - now),
-      Explorar: Math.max(0, (user.explorarCooldown || 0) - now),
       Invertir: Math.max(0, (user.invertirCooldown || 0) - now)
     }
 
@@ -49,8 +46,8 @@ export default {
     const currency = db.settings?.[botId]?.currency || 'Coins'
     const name = db.users[m.sender]?.name || m.sender.split('@')[0]
 
-    const mensaje = `
-✧ Usuario <${name}>
+    const mensaje = '
+✧ Usuario `${name}`
 
 • Work      » ${formatTime(cooldowns.Work)}
 • Slut      » ${formatTime(cooldowns.Slut)}
@@ -61,13 +58,10 @@ export default {
 • Ruleta    » ${formatTime(cooldowns.Ruleta)}
 • Steal     » ${formatTime(cooldowns.Steal)}
 • Ppt       » ${formatTime(cooldowns.Ppt)}
-• Weekly    » ${formatTime(cooldowns.Weekly)}
-• Monthly   » ${formatTime(cooldowns.Monthly)}
-• Explorar  » ${formatTime(cooldowns.Explorar)}
 • Invertir  » ${formatTime(cooldowns.Invertir)}
 
 ✧ Coins totales » ¥${coins.toLocaleString()} ${currency}
-`
+'
 
     await client.sendContextInfoIndex(m.chat, mensaje, {}, m, true, {})
   }

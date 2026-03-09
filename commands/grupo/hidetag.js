@@ -1,5 +1,5 @@
 export default {
-  command: ['hidetag', 'tag'],
+  command: ['hidetag', 'tag', 'notify', 'n'],
   category: 'grupo',
   isAdmin: true,
   run: async (client, m, args) => {
@@ -13,7 +13,7 @@ export default {
       .map(id => client.decodeJid(id))
 
     if (!m.quoted && !text) {
-      return m.reply(`🌿 Ingresa un texto o responde a uno`)
+      return m.reply(`✦ Ingresa un texto o responde a uno`)
     }
 
     const q = m.quoted || m
@@ -77,7 +77,7 @@ try {
     }
   }
   if (!hasText) {
-    return m.reply('🌿 Ingresa un texto o responde a un mensaje.')
+    return m.reply('❖ Ingresa un texto o responde a un mensaje.')
   }
 
   return client.sendMessage(

@@ -1,26 +1,25 @@
 import fetch from 'node-fetch';
 import FormData from 'form-data';
 
-async function uploadToCatbox(buffer, mime) {
+async function uploadToStellar(buffer, mime) {
   const form = new FormData();
-  form.append('reqtype', 'fileupload');
-  form.append('fileToUpload', buffer, {
+  form.append('file', buffer, {
     filename: `banner.${mime.split('/')[1] || 'bin'}`,
     contentType: mime
   });
 
-  const res = await fetch('https://catbox.moe/user/api.php', {
+  const res = await fetch('https://bot.stellarwa.xyz/upload', {
     method: 'POST',
     body: form
   });
 
-  const url = await res.text();
+  const data = await res.json();
 
-  if (!url.startsWith('https://')) {
-    throw new Error('✦ Falló la subida a Catbox: ' + url);
+  if (!data || !data.url) {
+    throw new Error('✦ Falló la subida al servidor Stellar.');
   }
 
-  return url;
+  return data.url;
 }
 
 export default {
@@ -52,7 +51,7 @@ export default {
     const media = await q.download();
     if (!media) return m.reply('✦ No se pudo descargar el archivo.');
 
-    const link = await uploadToCatbox(media, mime);
+    const link = await uploadToStellar(media, mime);
     config.banner = link;
 
     return m.reply(`> ✦ Se ha actualizado el banner de *${config.namebot2}*!`);

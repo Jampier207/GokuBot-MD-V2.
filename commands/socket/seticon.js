@@ -2,12 +2,13 @@ import fetch from 'node-fetch'
 import FormData from 'form-data'
 
 async function uploadImageStellar(buffer, mime) {
-  const form = new FormData()
-  form.append('reqtype', 'fileupload')
-  form.append('fileToUpload', buffer, {
-    filename: `icon.${mime.split('/')[1] || 'png'}`,
-    contentType: mime
-  })
+const form = new FormData()
+
+form.append('reqtype', 'fileupload')
+form.append('file', buffer, {
+  filename: `icon.${mime.split('/')[1] || 'png'}`,
+  contentType: mime
+})
 
   const res = await fetch('https://bot.stellarwa.xyz/upload', {
     method: 'POST',

@@ -2,26 +2,25 @@ import fetch from 'node-fetch'
 import FormData from 'form-data'
 
 async function uploadImageStellar(buffer, mime) {
-const form = new FormData()
+  const form = new FormData()
 
-form.append('reqtype', 'fileupload')
-form.append('file', buffer, {
-  filename: `icon.${mime.split('/')[1] || 'png'}`,
-  contentType: mime
-})
+  form.append('file', buffer, {
+    filename: `icon.${mime.split('/')[1] || 'png'}`,
+    contentType: mime
+  })
 
   const res = await fetch('https://bot.stellarwa.xyz/upload', {
     method: 'POST',
     body: form
   })
 
-  const url = await res.text()
+  const json = await res.json()
 
-  if (!url.startsWith('https://')) {
-    throw new Error('✦ Falló la subida a Stellar: ' + url)
+  if (!json.status || !json.url) {
+    throw new Error('✦ Falló la subida a Stellar')
   }
 
-  return url
+  return json.url
 }
 
 export default {
@@ -44,7 +43,7 @@ export default {
 
     if (value.startsWith('http')) {
       config.icon = value
-      return m.reply(`✦ Se ha actualizado el icon de *${config.namebot2}*!`)
+      return m.reply(`✦ Se ha actualizado el icon de *${config.namebot2 || 'Bot'}*!`)
     }
 
     const q = m.quoted ? m.quoted : m
@@ -60,6 +59,10 @@ export default {
 
     config.icon = link
 
-    return m.reply(`> ✦ Se ha actualizado el icon de *${config.namebot2}*!`)
+    return m.reply(
+      `╔═━⊷ ICON DEL BOT ACTUALIZADO ⊶━═╗\n` +
+      `> Nuevo icon:\n${link}\n` +
+      `╚═══════════════════════════════╝`
+    )
   },
 }

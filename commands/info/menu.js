@@ -23,6 +23,7 @@ const uptimeString = `${hours}h ${minutes}m ${seconds}s`
 
       const botId = client.user.id.split(':')[0] + "@s.whatsapp.net"
       const settings = global.db.data.settings[botId] || {}
+      const banner = settings.banner || 'https://bot.stellarwa.xyz/files/xQSur.jpg'
       const owner = settings.owner || ''
 
       const totalUsers = Object.keys(global.db.data.users).length.toLocaleString()
@@ -78,10 +79,10 @@ const uptimeString = `${hours}h ${minutes}m ${seconds}s`
       const buffer = Buffer.from(arrayBuffer)
 
       await client.sendMessage(
-        m.chat,
-        {
-          image: buffer,
-          caption: menu.trim(),
+  m.chat,
+  {
+    image: { url: banner },
+    caption: menu.trim(),
           contextInfo: {
             mentionedJid: owner ? [owner] : [],
             forwardingScore: 999,

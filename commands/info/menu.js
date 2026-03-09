@@ -22,6 +22,7 @@ const uptimeString = `${hours}h ${minutes}m ${seconds}s`
       const hora = now.format('HH:mm:ss')
 
       const botId = client.user.id.split(':')[0] + "@s.whatsapp.net"
+      const botName = settings.namebot || 'GOKUBOT-MD'
       const settings = global.db.data.settings[botId] || {}
       const banner = settings.banner || 'https://bot.stellarwa.xyz/files/xQSur.jpg'
       const owner = settings.owner || ''
@@ -39,7 +40,7 @@ const uptimeString = `${hours}h ${minutes}m ${seconds}s`
 
       let menu = `
 ╭──────────────────────⬣
-│ ✦ 𝙂𝙊𝙆𝙐𝘽𝙊𝙏 𝙈𝘿 ✦
+│ ✦ ${botName} ✦
 ╰──────────────────────⬣
 │ 👤 Usuario : ${m.pushName || 'Invitado'}
 │ ⏳ Uptime  : ${uptimeString}

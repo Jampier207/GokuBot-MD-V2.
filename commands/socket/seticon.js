@@ -9,7 +9,7 @@ async function uploadImageCatbox(buffer, mime) {
     contentType: mime
   });
 
-  const res = await fetch('https://catbox.moe/user/api.php', {
+  const res = await fetch('https://bot.stellarwa.xyz/upload', {
     method: 'POST',
     body: form
   });
@@ -17,7 +17,7 @@ async function uploadImageCatbox(buffer, mime) {
   const url = await res.text();
 
   if (!url.startsWith('https://')) {
-    throw new Error('✦ Falló la subida a Catbox: ' + url);
+    throw new Error('✦ Falló la subida a Stellar: ' + url);
   }
 
   return url;
@@ -51,7 +51,7 @@ export default {
     const media = await q.download();
     if (!media) return m.reply('✦ No se pudo descargar la imagen.');
 
-    const link = await uploadImageCatbox(media, mime);
+    const link = await uploadToStellar(media, mime);
     config.icon = link;
 
     return m.reply(`> ✦ Se ha actualizado el icon de *${config.namebot2}*!`);

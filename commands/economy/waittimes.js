@@ -46,8 +46,8 @@ export default {
     const currency = db.settings?.[botId]?.currency || 'Coins'
     const name = db.users[m.sender]?.name || m.sender.split('@')[0]
 
-    const mensaje = '
-✧ Usuario `${name}`
+    const mensaje = `
+✧ Usuario *${name}*
 
 • Work      » ${formatTime(cooldowns.Work)}
 • Slut      » ${formatTime(cooldowns.Slut)}
@@ -61,7 +61,7 @@ export default {
 • Invertir  » ${formatTime(cooldowns.Invertir)}
 
 ✧ Coins totales » ¥${coins.toLocaleString()} ${currency}
-'
+`
 
     await client.sendContextInfoIndex(m.chat, mensaje, {}, m, true, {})
   }

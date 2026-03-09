@@ -27,5 +27,5 @@ En caso de duda, antes de instalar GokuBot-MD, pruebe el bot aquí
 
 #### COLABORADORES 
 <a href="https://github.com/Jampier207/GokuBot-MDV2/graphs/contributors">
-<img src="https://contrib.rocks/image?repo=Jampier207/GokuBot-MD-V2" /> 
+<img src="https://contrib.rocks/image?repo=Jampier207/GokuBot-MD-V2." /> 
 </a>

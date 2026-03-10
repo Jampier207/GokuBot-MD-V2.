@@ -7,7 +7,8 @@ export default {
     if (!m?.sender) return
 
     const idBot = client.user.id.split(':')[0] + '@s.whatsapp.net'
-    const config = global.db.data.settings[idBot] ||= {}
+    if (!global.db.data.settings[idBot]) global.db.data.settings[idBot] = {}
+    const config = global.db.data.settings[idBot]
 
     const isOwner2 = [idBot, ...global.owner.map(n => n + '@s.whatsapp.net')].includes(m.sender)
     if (!isOwner2) return m.reply('✦ Acceso denegado. Solo el propietario puede usar este comando.')

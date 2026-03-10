@@ -1,3 +1,4 @@
+import fetch from 'node-fetch'
 import { resolveLidToRealJid } from "../../lib/utils.js"
 
 export default {
@@ -24,11 +25,28 @@ export default {
       jid,
       level: data.level || 0
     }))
-
     users.sort((a, b) => b.level - a.level)
     const rank = users.findIndex(u => u.jid === who) + 1 || '—'
 
-    const text = `
+    try {
+      const params = new URLSearchParams({
+        username: name,
+        level: user.level || 0,
+        exp: user.exp || 0,
+        rank: rank
+      })
+      const res = await fetch(`https://api.stellarwa.xyz/generate/levelup?${params.toString()}`)
+      const json = await res.json()
+
+      if (!json.status || !json.url) throw new Error('No se pudo generar la imagen.')
+
+      await client.sendMessage(
+        chatId,
+        { image: { url: json.url }, caption: `⭐ *Nivel de ${name}* ⭐` },
+        { quoted: m }
+      )
+    } catch (e) {
+      const text = `
 ╭───〔 📊 *NIVEL DEL USUARIO* 〕
 │ 👤 Usuario : *${name}*
 │ ⭐ Nivel   : *${user.level || 0}*
@@ -37,11 +55,7 @@ export default {
 │ ⚙️ Comandos: *${user.usedcommands?.toLocaleString() || 0}*
 ╰─────────────────────
 `
-
-    await client.sendMessage(
-      chatId,
-      { text, mentions: [who] },
-      { quoted: m }
-    )
+      await client.sendMessage(chatId, { text, mentions: [who] }, { quoted: m })
+    }
   }
 }

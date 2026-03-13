@@ -7,9 +7,6 @@ const comandos = [
   'grabboobs','blowjob','boobjob','fap','footjob'
 ];
 
-const API_BASE = 'https://api.stellarwa.xyz';
-const API_KEY = 'Jampier207';
-
 export default {
   command: comandos,
   category: 'nsfw',
@@ -29,7 +26,7 @@ export default {
 ╚════════════════╝`)
       }
 
-      const url = `${API_BASE}/nsfw/interaction?type=${command}&key=${API_KEY}`;
+      const url = `${global.api.url}/nsfw/interaction?type=${command}&key=${global.api.key}`;
 
       const { data } = await axios.get(url);
 

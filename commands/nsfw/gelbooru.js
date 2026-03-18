@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 global.api = {
   url: 'https://api.stellarwa.xyz',
-  key: 'Jampier207'
+  key: ''
 }
 
 export default {

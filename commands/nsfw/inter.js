@@ -34,7 +34,7 @@ const commandAliases = {
 
 global.api = {
   url: 'https://api.stellarwa.xyz',
-  key: 'Jampier207'
+  key: ''
 }
 export default {
    command: ['anal', 'cum', 'undress', 'encuerar', 'fuck', 'coger', 'spank', 'nalgada', 'lickpussy', 'fap', 'paja', 'grope', 'sixnine', '69', 'suckboobs', 'grabboobs', 'blowjob', 'bj', 'boobjob', 'footjob'],

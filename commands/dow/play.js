@@ -41,7 +41,14 @@ export default {
 ║ Enlace   : ${url}
 ╚══════════════════╝`
 
-      await m.reply(caption)
+      await client.sendMessage(
+        m.chat,
+        {
+          image: { url: data.thumb },
+          caption
+        },
+        { quoted: m }
+      )
 
       const res = await axios.get(data.url, {
         responseType: 'arraybuffer',

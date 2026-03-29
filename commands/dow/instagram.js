@@ -1,4 +1,4 @@
-import { igdl } from '../../lib/scrapers/instagram.js'
+import { igDownload } from '../../lib/scrapers/instagram.js'
 
 export default {
   command: ['instagram', 'ig', 'reel'],
@@ -9,7 +9,7 @@ export default {
     if (!args.length) {
       return m.reply(
         '┌─[ Instagram ]\n' +
-        '│ Ingresa un enlace válido\n' +
+        '│ Ingresa un enlace\n' +
         '└────────────'
       )
     }
@@ -32,14 +32,13 @@ export default {
 
         for (const url of urls.slice(0, 10)) {
           try {
-            const res = await igdl(url)
+            const res = await igDownload(url)
 
-            for (const media of res.slice(0, 10)) {
-              if (media.type === 'video') {
-                medias.push({ type: 'video', data: { url: media.url } })
-              } else {
-                medias.push({ type: 'image', data: { url: media.url } })
-              }
+            for (const media of res.items.slice(0, 10)) {
+              medias.push({
+                type: media.type === 'video' ? 'video' : 'image',
+                data: { url: media.url }
+              })
             }
           } catch {}
         }
@@ -55,27 +54,27 @@ export default {
         await client.sendAlbumMessage(m.chat, medias, { quoted: m })
 
       } else {
-        const res = await igdl(urls[0])
+        const res = await igDownload(urls[0])
 
-        if (!res || !res.length) {
+        if (!res || !res.items.length) {
           return m.reply(
             '┌─[ Fallo ]\n' +
-            '│ No se pudo obtener contenido\n' +
+            '│ Sin contenido\n' +
             '└────────────'
           )
         }
 
-        if (res.length === 1 && res[0].type === 'video') {
+        if (res.items.length === 1 && res.items[0].type === 'video') {
           await client.sendMessage(
             m.chat,
             {
-              video: { url: res[0].url },
+              video: { url: res.items[0].url },
               mimetype: 'video/mp4'
             },
             { quoted: m }
           )
         } else {
-          const medias = res.slice(0, 10).map(media => ({
+          const medias = res.items.slice(0, 10).map(media => ({
             type: media.type === 'video' ? 'video' : 'image',
             data: { url: media.url }
           }))
@@ -87,7 +86,7 @@ export default {
     } catch (e) {
       m.reply(
         '┌─[ Error ]\n' +
-        '│ Ocurrió un problema\n' +
+        '│ ' + e.message + '\n' +
         '└────────────'
       )
     }

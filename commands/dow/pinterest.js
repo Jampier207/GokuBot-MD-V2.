@@ -1,4 +1,5 @@
 import scraper from 'zenbot-scraper'
+const { pinterest } = scraper
 
 global.pinSessions = global.pinSessions || new Map()
 

@@ -50,6 +50,11 @@ export default {
       const contextInfo = {
         forwardingScore: 999,
         isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid,
+          newsletterName,
+          serverMessageId: 143
+        },
         externalAdReply: {
           showAdAttribution: true,
           title: newsletterName,

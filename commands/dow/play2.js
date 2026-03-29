@@ -53,30 +53,24 @@ export default {
         forwardedNewsletterMessageInfo: {
           newsletterJid,
           newsletterName,
-          serverMessageId: 143
-        },
-        externalAdReply: {
-          showAdAttribution: true,
-          title: newsletterName,
-          body: 'Enviando video...',
-          previewType: 'VIDEO',
-          thumbnailUrl: data.thumb,
-          sourceUrl: url
+          serverMessageId: 1
         }
       }
 
       await client.sendMessage(m.chat, { 
         image: { url: data.thumb }, 
-        caption 
-      }, { quoted: m, contextInfo })
+        caption,
+        contextInfo
+      }, { quoted: m })
 
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
       await client.sendMessage(m.chat, { 
         video: { url: data.url }, 
         mimetype: 'video/mp4',
-        fileName: `${data.title}.mp4`
-      }, { quoted: m, contextInfo })
+        fileName: `${data.title}.mp4`,
+        contextInfo
+      }, { quoted: m })
 
     } catch (e) {
       await client.sendMessage(m.chat, { react: { text: '❌', key: m.key } })

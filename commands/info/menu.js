@@ -25,7 +25,7 @@ const uptimeString = `${hours}h ${minutes}m ${seconds}s`
 const settings = global.db.data.settings[botId] || {}
 
 const botName = settings.namebot || 'GOKUBOT-MD'
-      const banner = settings.banner || 'https://bot.stellarwa.xyz/files/xQSur.jpg'
+      const banner = settings.banner || 'https://files.catbox.moe/xq54k8.jpeg'
       const owner = settings.owner || ''
 
       const totalUsers = Object.keys(global.db.data.users).length.toLocaleString()

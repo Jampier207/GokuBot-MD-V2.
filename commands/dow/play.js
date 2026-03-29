@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ytDownload, ytSearch } from '../../lib/scrapers/youtube.js'
 
 const newsletterJid = '120363402960178567@newsletter'
-const newsletterName = '🌹 𝐆𝐨𝐤𝐮𝐁𝐨𝐭-𝐌𝐃 💖'
+const newsletterName = '🌹 GokuBot-MD ~ Jxmpier207 💖'
 
 export default {
   command: ['play', 'mp3', 'ytmp3', 'ytaudio', 'playaudio'],

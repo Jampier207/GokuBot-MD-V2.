@@ -5,7 +5,7 @@ import { commands } from '../../lib/commands.js'
 export default {
   command: ['menu', 'help'],
   category: 'info',
-  run: async (client, m, usedPrefix) => {
+  run: async (client, m, { usedPrefix }) => {
     try {
       const uptime = process.uptime()
       const hours = Math.floor(uptime / 3600)
@@ -19,7 +19,7 @@ export default {
       const botId = client.user.id.split(':')[0] + "@s.whatsapp.net"
       const settings = global.db.data?.settings?.[botId] || {}
       const botName = settings.namebot || '𝐆𝐎𝐊𝐔𝐁𝐎𝐓-𝐌𝐃'
-      const banner = 'https://files.catbox.moe'
+      const banner = 'https://files.catbox.moe/xq54k8.jpeg'
 
       const totalUsers = Object.keys(global.db.data?.users || {}).length
       const categories = {}
@@ -54,7 +54,7 @@ export default {
       }
 
       menu += `\n┌────────────────────────┐\n`
-      menu += `│  𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫: ᴊxᴍᴘɪᴇʀ²⁰⁷™\n`
+      menu += `│  𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫: ᴊxᴍᴘɪᴇʀ²⁰⁷\n`
       menu += `└────────────────────────┘`
 
       await client.sendMessage(m.chat, {

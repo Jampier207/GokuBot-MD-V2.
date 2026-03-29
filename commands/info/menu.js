@@ -21,7 +21,7 @@ export default {
       const botId = client.user.id.split(':')[0] + "@s.whatsapp.net"
       const settings = global.db.data?.settings?.[botId] || {}
       const botName = settings.namebot || '𝐆𝐎𝐊𝐔𝐁𝐎𝐓-𝐌𝐃'
-      const banner = 'https://files.catbox.moe'
+      const banner = 'https://files.catbox.moe/xq54k8.jpeg'
       const owner = settings.owner || ''
 
       const totalUsers = Object.keys(global.db.data?.users || {}).length.toLocaleString()

@@ -24,11 +24,17 @@ export default {
 
       const isAudio = args.includes('--mp3') || args.includes('-a')
 
-      const data = await ytDownload(
-        url,
-        isAudio ? 'mp3' : 'video',
-        isAudio ? '128k' : '360p'
-      )
+      let data
+
+      try {
+        data = await ytDownload(url, isAudio ? 'mp3' : 'video', isAudio ? '128k' : '360p')
+      } catch {
+        try {
+          data = await ytDownload(url, isAudio ? 'mp3' : 'video', isAudio ? '128k' : '240p')
+        } catch {
+          data = await ytDownload(url, isAudio ? 'mp3' : 'video', isAudio ? '128k' : '144p')
+        }
+      }
 
       const caption =
 `╭──────────────
@@ -44,7 +50,6 @@ export default {
 ╰──────────────`
 
       if (data.type === 'audio') {
-
         await client.sendMessage(
           m.chat,
           {
@@ -55,9 +60,7 @@ export default {
           },
           { quoted: m }
         )
-
       } else {
-
         await client.sendMessage(
           m.chat,
           {
@@ -68,7 +71,6 @@ export default {
           },
           { quoted: m }
         )
-
       }
 
     } catch (e) {

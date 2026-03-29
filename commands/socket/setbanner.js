@@ -1,25 +1,26 @@
-import fetch from 'node-fetch';
-import FormData from 'form-data';
+import fetch from 'node-fetch'
+import FormData from 'form-data'
 
-async function uploadToStellar(buffer, mime) {
-  const form = new FormData();
-  form.append('file', buffer, {
+async function uploadToCatbox(buffer, mime) {
+  const form = new FormData()
+  form.append('reqtype', 'fileupload')
+  form.append('fileToUpload', buffer, {
     filename: `banner.${mime.split('/')[1] || 'bin'}`,
     contentType: mime
-  });
+  })
 
-  const res = await fetch('https://bot.stellarwa.xyz/upload', {
+  const res = await fetch('https://catbox.moe/user/api.php', {
     method: 'POST',
     body: form
-  });
+  })
 
-  const data = await res.json();
+  const url = await res.text()
 
-  if (!data || !data.url) {
-    throw new Error('✦ Falló la subida al servidor Stellar.');
+  if (!url.startsWith('https://')) {
+    throw new Error('✦ La subida a Catbox falló: ' + url)
   }
 
-  return data.url;
+  return url
 }
 
 export default {
@@ -27,33 +28,45 @@ export default {
   category: 'socket',
   run: async (client, m, args) => {
     if (!m?.sender) return
-    const idBot = client.user.id.split(':')[0] + '@s.whatsapp.net';
-    const config = global.db.data.settings[idBot];
-    const isOwner2 = [idBot, ...global.owner.map((number) => number + '@s.whatsapp.net')].includes(m.sender);
-    if (!isOwner2 && m.sender !== owner) return m.reply(mess.socket);
+    const idBot = client.user.id.split(':')[0] + '@s.whatsapp.net'
+    const config = global.db.data.settings[idBot]
+    const isOwner = [idBot, ...global.owner.map(num => num + '@s.whatsapp.net')].includes(m.sender)
+    if (!isOwner && m.sender !== owner) return m.reply(
+      '╔══════════════╗\n║   PERMISO    ║\n╚══════════════╝\nNo puedes cambiar el banner del bot.'
+    )
 
-    const value = args.join(' ').trim();
+    const value = args.join(' ').trim()
 
     if (!value && !m.quoted && !m.message.imageMessage && !m.message.videoMessage)
-      return m.reply('✦ Debes enviar o citar una imagen o video para cambiar el banner del bot.');
+      return m.reply(
+        '╔════════════════════════╗\n║     BANNER NUEVO       ║\n╚════════════════════════╝\nEnvía o cita una imagen o video para actualizar el banner.'
+      )
 
     if (value.startsWith('http')) {
-      config.banner = value;
-      return m.reply(`✦ Se ha actualizado el banner de *${config.namebot2}*!`);
+      config.banner = value
+      return m.reply(
+        '╔════════════════════════╗\n║      BANNER ACTUALIZADO       ║\n╚════════════════════════╝\nEl banner del bot se ha actualizado correctamente.'
+      )
     }
 
-    const q = m.quoted ? m.quoted : m.message.imageMessage ? m : m;
-    const mime = (q.msg || q).mimetype || q.mediaType || '';
+    const q = m.quoted ? m.quoted : m.message.imageMessage ? m : m
+    const mime = (q.msg || q).mimetype || q.mediaType || ''
 
     if (!/image\/(png|jpe?g|gif)|video\/mp4/.test(mime))
-      return m.reply('✦ Responde a una imagen o video válido.');
+      return m.reply(
+        '╔════════════════════════╗\n║     FORMATO INVÁLIDO    ║\n╚════════════════════════╝\nResponde a una imagen o video válido (png, jpg, gif, mp4).'
+      )
 
-    const media = await q.download();
-    if (!media) return m.reply('✦ No se pudo descargar el archivo.');
+    const media = await q.download()
+    if (!media) return m.reply(
+      '╔════════════════════╗\n║   ERROR AL DESCARGAR  ║\n╚════════════════════╝\nNo se pudo descargar el archivo, intenta de nuevo.'
+    )
 
-    const link = await uploadToStellar(media, mime);
-    config.banner = link;
+    const link = await uploadToCatbox(media, mime)
+    config.banner = link
 
-    return m.reply(`> ✦ Se ha actualizado el banner de *${config.namebot2}*!`);
-  },
-};
+    return m.reply(
+      '╔════════════════════════╗\n║     BANNER ACTUALIZADO       ║\n╚════════════════════════╝\nEl banner del bot se ha cambiado correctamente.\nPuedes verlo usando el comando de menú.'
+    )
+  }
+}

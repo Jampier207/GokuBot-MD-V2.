@@ -1,107 +1,69 @@
 import moment from 'moment-timezone'
 import os from 'os'
-import fetch from 'node-fetch'
 import { commands } from '../../lib/commands.js'
 
 export default {
   command: ['menu', 'help'],
   category: 'info',
-  run: async (client, m, usedPrefix) => {
+  run: async (client, m, { usedPrefix }) => {
     try {
-
-const uptime = process.uptime()
-const hours = Math.floor(uptime / 3600)
-const minutes = Math.floor((uptime % 3600) / 60)
-const seconds = Math.floor(uptime % 60)
-
-const uptimeString = `${hours}h ${minutes}m ${seconds}s`
-
+      const uptime = process.uptime()
+      const hours = Math.floor(uptime / 3600)
+      const minutes = Math.floor((uptime % 3600) / 60)
+      const uptimeString = `${hours}h ${minutes}m`
 
       const now = moment.tz('America/Bogota')
-      const fecha = now.format('DD MMM YYYY')
-      const hora = now.format('HH:mm:ss')
+      const fecha = now.format('DD/MM/YY')
+      const hora = now.format('HH:mm')
 
       const botId = client.user.id.split(':')[0] + "@s.whatsapp.net"
-const settings = global.db.data.settings[botId] || {}
+      const settings = global.db.data.settings[botId] || {}
+      const botName = settings.namebot || '𝐆𝐎𝐊𝐔𝐁𝐎𝐓-𝐌𝐃'
+      const banner = 'https://files.catbox.moe/xq54k8.jpeg' // Tu imagen editada
 
-const botName = settings.namebot || 'GOKUBOT-MD'
-      const banner = settings.banner || 'https://files.catbox.moe/xq54k8.jpeg'
-      const owner = settings.owner || ''
-
-      const totalUsers = Object.keys(global.db.data.users).length.toLocaleString()
-      const totalCmds = commands.length
-      const platform = os.platform()
-
+      const totalUsers = Object.keys(global.db.data.users).length
       const categories = {}
-      for (const cmd of commands) {
-        const cat = cmd.category || 'general'
+      
+      commands.forEach(cmd => {
+        const cat = cmd.category || 'otros'
         if (!categories[cat]) categories[cat] = []
         categories[cat].push(cmd)
-      }
+      })
 
-      let menu = `
-╭──────────────────────⬣
-│ ✦ ${botName} ✦
-╰──────────────────────⬣
-│ 👤 Usuario : ${m.pushName || 'Invitado'}
-│ ⏳ Uptime  : ${uptimeString}
-│ 📅 Fecha   : ${fecha}
-│ ⏰ Hora    : ${hora}
-│ 💻 Sistema : ${platform}
-│ 📦 Comandos: ${totalCmds}
-│ 👥 Usuarios: ${totalUsers}
-╰─────────────────────────⬣
-`
+      let menu = `┌────  ${botName}  ────┐\n`
+      menu += `│ ⬭ 𝐔𝐬𝐮𝐚𝐫𝐢𝐨 › ${m.pushName || 'Invitado'}\n`
+      menu += `│ ⬭ 𝐔𝐩𝐭𝐢𝐦𝐞  › ${uptimeString}\n`
+      menu += `│ ⬭ 𝐅𝐞𝐜𝐡𝐚    › ${fecha} | ${hora}\n`
+      menu += `│ ⬭ 𝐔𝐬𝐮𝐚𝐫𝐢𝐨𝐬 › ${totalUsers}\n`
+      menu += `└────────────────────────┘\n`
 
       for (const [cat, cmds] of Object.entries(categories)) {
-  const title = cat.charAt(0).toUpperCase() + cat.slice(1)
+        menu += `\n───  ${cat.toUpperCase()}  ───\n`
+        const cmdList = cmds.map(cmd => `› ${usedPrefix}${cmd.command[0]}`).join('\n')
+        menu += `${cmdList}\n`
+      }
 
-  menu += `\n╭━━━〔 ${title} 〕━━━⬣\n`
+      menu += `\n┌────────────────────────┐\n`
+      menu += `│  𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫: ᴊxᴍᴘɪᴇʀ²⁰⁷™\n`
+      menu += `└────────────────────────┘`
 
-  cmds.forEach(cmd => {
-    const name = `${usedPrefix}${cmd.alias?.[0] || 'unknown'}`
-    const description = cmd.desc || 'Sin descripción'
-
-    menu += `┃ ✦ ${name}\n`
-    menu += `┃ ➥ ${description}\n`
-    menu += `┃\n`
-  })
-
-  menu += `╰━━━━━━━━━━━━━━━━━━⬣\n`
-}
-      menu += `
-╭──────────────────────⬣
-│ 👑 Developer : ᴊxᴍᴘɪᴇʀ²⁰⁷™
-╰──────────────────────⬣
-`
-
-
-      const res = await fetch('https://files.catbox.moe/xq54k8.jpeg')
-      const arrayBuffer = await res.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
-
-      await client.sendMessage(
-  m.chat,
-  {
-    image: { url: banner },
-    caption: menu.trim(),
-          contextInfo: {
-            mentionedJid: owner ? [owner] : [],
-            forwardingScore: 999,
-            isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-              newsletterJid: "120363402960178567@newsletter",
-              newsletterName: "🌹 𝐆𝐨𝐤𝐮𝐁𝐨𝐭-𝐌𝐃 💖",
-              serverMessageId: 1
-            }
+      await client.sendMessage(m.chat, {
+        image: { url: banner },
+        caption: menu.trim(),
+        contextInfo: {
+          forwardingScore: 999,
+          isForwarded: true,
+          forwardedNewsletterMessageInfo: {
+            newsletterJid: "120363402960178567@newsletter",
+            newsletterName: "🌹 𝐆𝐨𝐤𝐮𝐁𝐨𝐭-𝐌𝐃 💖",
+            serverMessageId: 1
           }
-        },
-        { quoted: m }
-      )
+        }
+      }, { quoted: m })
 
     } catch (e) {
       console.log(e)
-      await m.reply("Error al mostrar el menú.\n[TypeError]: " + e.message)
+      await m.reply("Error: " + e.message)
     }
   }
 }

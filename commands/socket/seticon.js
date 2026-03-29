@@ -1,18 +1,18 @@
 import fetch from 'node-fetch'
 import FormData from 'form-data'
 
-async function uploadImageStellar(buffer, mime) {
+async function uploadImageCatbox(buffer, mime) {
   const form = new FormData()
   form.append('file', buffer, {
     filename: `icon.${mime.split('/')[1] || 'png'}`,
     contentType: mime
   })
-  const res = await fetch('https://bot.stellarwa.xyz/upload', {
+  const res = await fetch('https://catbox.moe/user/api.php', {
     method: 'POST',
     body: form
   })
   const json = await res.json()
-  if (!json.status || !json.url) throw new Error('✦ Falló la subida a Stellar')
+  if (!json.status || !json.url) throw new Error('✦ Falló la subida a Catbox')
   return json.url
 }
 
@@ -49,7 +49,7 @@ export default {
     const media = await q.download()
     if (!media) return m.reply('✦ No se pudo descargar la imagen.')
 
-    const link = await uploadImageStellar(media, mime)
+    const link = await uploadImageCatbox(media, mime)
 
     config.icon = link
 

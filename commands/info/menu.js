@@ -17,14 +17,15 @@ export default {
       const hora = now.format('HH:mm')
 
       const botId = client.user.id.split(':')[0] + "@s.whatsapp.net"
-      const settings = global.db.data.settings[botId] || {}
+      const settings = global.db.data?.settings?.[botId] || {}
       const botName = settings.namebot || '𝐆𝐎𝐊𝐔𝐁𝐎𝐓-𝐌𝐃'
-      const banner = 'https://files.catbox.moe/xq54k8.jpeg' // Tu imagen editada
+      const banner = 'https://files.catbox.moe/xq54k8.jpeg'
 
-      const totalUsers = Object.keys(global.db.data.users).length
+      const totalUsers = Object.keys(global.db.data?.users || {}).length
       const categories = {}
-      
+
       commands.forEach(cmd => {
+        if (!cmd.command) return
         const cat = cmd.category || 'otros'
         if (!categories[cat]) categories[cat] = []
         categories[cat].push(cmd)
@@ -37,14 +38,17 @@ export default {
       menu += `│ ⬭ 𝐔𝐬𝐮𝐚𝐫𝐢𝐨𝐬 › ${totalUsers}\n`
       menu += `└────────────────────────┘\n`
 
-      for (const [cat, cmds] of Object.entries(categories)) {
+      const sortedCategories = Object.keys(categories).sort()
+      for (const cat of sortedCategories) {
         menu += `\n───  ${cat.toUpperCase()}  ───\n`
-        const cmdList = cmds.map(cmd => `› ${usedPrefix}${cmd.command[0]}`).join('\n')
+        const cmdList = categories[cat]
+          .map(cmd => `› ${usedPrefix}${Array.isArray(cmd.command) ? cmd.command[0] : cmd.command}`)
+          .join('\n')
         menu += `${cmdList}\n`
       }
 
       menu += `\n┌────────────────────────┐\n`
-      menu += `│  𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫: ᴊxᴍᴘɪᴇʀ²⁰⁷™\n`
+      menu += `│  𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫: ᴊxᴍᴘɪᴇʀ²⁰⁷\n`
       menu += `└────────────────────────┘`
 
       await client.sendMessage(m.chat, {
@@ -62,7 +66,7 @@ export default {
       }, { quoted: m })
 
     } catch (e) {
-      console.log(e)
+      console.error(e)
       await m.reply("Error: " + e.message)
     }
   }

@@ -28,7 +28,7 @@ export default {
 
       cmdsList.forEach(cmd => {
         if (!cmd.command) return
-        const cat = cmd.category || 'otros'
+        const cat = cmd.category || 'general'
         if (!categories[cat]) categories[cat] = []
         categories[cat].push(cmd)
       })

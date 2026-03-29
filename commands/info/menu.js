@@ -9,22 +9,20 @@ export default {
   run: async (client, m, usedPrefix) => {
     try {
 
-const uptime = process.uptime()
-const hours = Math.floor(uptime / 3600)
-const minutes = Math.floor((uptime % 3600) / 60)
-const seconds = Math.floor(uptime % 60)
-
-const uptimeString = `${hours}h ${minutes}m ${seconds}s`
-
+      const uptime = process.uptime()
+      const hours = Math.floor(uptime / 3600)
+      const minutes = Math.floor((uptime % 3600) / 60)
+      const seconds = Math.floor(uptime % 60)
+      const uptimeString = `${hours}h ${minutes}m ${seconds}s`
 
       const now = moment.tz('America/Bogota')
       const fecha = now.format('DD MMM YYYY')
       const hora = now.format('HH:mm:ss')
 
       const botId = client.user.id.split(':')[0] + "@s.whatsapp.net"
-const settings = global.db.data.settings[botId] || {}
+      const settings = global.db.data.settings[botId] || {}
 
-const botName = settings.namebot || 'GOKUBOT-MD'
+      const botName = settings.namebot || 'GOKUBOT-MD'
       const banner = settings.banner || 'https://files.catbox.moe/xq54k8.jpeg'
       const owner = settings.owner || ''
 
@@ -40,51 +38,46 @@ const botName = settings.namebot || 'GOKUBOT-MD'
       }
 
       let menu = `
-╭──────────────────────⬣
-│ ✦ ${botName} ✦
-╰──────────────────────⬣
-│ 👤 Usuario : ${m.pushName || 'Invitado'}
-│ ⏳ Uptime  : ${uptimeString}
-│ 📅 Fecha   : ${fecha}
-│ ⏰ Hora    : ${hora}
-│ 💻 Sistema : ${platform}
-│ 📦 Comandos: ${totalCmds}
-│ 👥 Usuarios: ${totalUsers}
-╰─────────────────────────⬣
+╔════════════════════╗
+║       ${botName}       ║
+╚════════════════════╝
+User       : ${m.pushName || 'Invitado'}
+Uptime     : ${uptimeString}
+Date       : ${fecha}
+Time       : ${hora}
+Platform   : ${platform}
+Commands   : ${totalCmds}
+Users      : ${totalUsers}
+─────────────────────
 `
 
       for (const [cat, cmds] of Object.entries(categories)) {
-  const title = cat.charAt(0).toUpperCase() + cat.slice(1)
+        const title = cat.charAt(0).toUpperCase() + cat.slice(1)
+        menu += `\n╔═══[ ${title} ]═══╗\n`
+        cmds.forEach(cmd => {
+          const name = `${usedPrefix}${cmd.alias?.[0] || 'unknown'}`
+          const description = cmd.desc || 'No description'
+          menu += `│ ${name}\n`
+          menu += `│  └─> ${description}\n`
+        })
+        menu += `╚═══════════════╝\n`
+      }
 
-  menu += `\n╭━━━〔 ${title} 〕━━━⬣\n`
-
-  cmds.forEach(cmd => {
-    const name = `${usedPrefix}${cmd.alias?.[0] || 'unknown'}`
-    const description = cmd.desc || 'Sin descripción'
-
-    menu += `┃ ✦ ${name}\n`
-    menu += `┃ ➥ ${description}\n`
-    menu += `┃\n`
-  })
-
-  menu += `╰━━━━━━━━━━━━━━━━━━⬣\n`
-}
       menu += `
-╭──────────────────────⬣
-│ 👑 Developer : ᴊxᴍᴘɪᴇʀ²⁰⁷
-╰──────────────────────⬣
+╔════════════════════╗
+║ Developer : ᴊxᴍᴘɪᴇʀ²⁰⁷ ║
+╚════════════════════╝
 `
-
 
       const res = await fetch('https://files.catbox.moe/xq54k8.jpeg')
       const arrayBuffer = await res.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
 
       await client.sendMessage(
-  m.chat,
-  {
-    image: { url: banner },
-    caption: menu.trim(),
+        m.chat,
+        {
+          image: { url: banner },
+          caption: menu.trim(),
           contextInfo: {
             mentionedJid: owner ? [owner] : [],
             forwardingScore: 999,

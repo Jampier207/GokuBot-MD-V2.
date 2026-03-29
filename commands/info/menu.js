@@ -5,7 +5,7 @@ import { commands } from '../../lib/commands.js'
 export default {
   command: ['menu', 'help'],
   category: 'info',
-  run: async (client, m, { usedPrefix }) => {
+  run: async (client, m, usedPrefix) => {
     try {
       const uptime = process.uptime()
       const hours = Math.floor(uptime / 3600)

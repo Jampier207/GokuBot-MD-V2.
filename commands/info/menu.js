@@ -5,7 +5,7 @@ import { commands } from '../../lib/commands.js'
 export default {
   command: ['menu', 'help'],
   category: 'info',
-  run: async (client, m, usedPrefix) => {
+  run: async (client, m, { usedPrefix }) => {
     try {
       const uptime = process.uptime()
       const hours = Math.floor(uptime / 3600)
@@ -24,7 +24,9 @@ export default {
       const totalUsers = Object.keys(global.db.data?.users || {}).length
       const categories = {}
 
-      commands.forEach(cmd => {
+      const cmdsList = Array.isArray(commands) ? commands : Object.values(commands)
+
+      cmdsList.forEach(cmd => {
         if (!cmd.command) return
         const cat = cmd.category || 'otros'
         if (!categories[cat]) categories[cat] = []
@@ -41,10 +43,10 @@ export default {
       const sortedCategories = Object.keys(categories).sort()
       for (const cat of sortedCategories) {
         menu += `\n───  ${cat.toUpperCase()}  ───\n`
-        const cmdList = categories[cat]
+        const cmds = categories[cat]
           .map(cmd => `› ${usedPrefix}${Array.isArray(cmd.command) ? cmd.command[0] : cmd.command}`)
           .join('\n')
-        menu += `${cmdList}\n`
+        menu += `${cmds}\n`
       }
 
       menu += `\n┌────────────────────────┐\n`

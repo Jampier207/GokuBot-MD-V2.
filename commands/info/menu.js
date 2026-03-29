@@ -74,11 +74,16 @@ Users      : ${totalUsers}
       const arrayBuffer = await res.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
 
+      const mime = banner.endsWith('.mp4') ? 'video/mp4' : banner.endsWith('.gif') ? 'image/gif' : 'image/jpeg'
+
+      const messagePayload = mime === 'video/mp4' 
+        ? { video: { url: banner }, caption: menu.trim() }
+        : { image: { url: banner }, caption: menu.trim() }
+
       await client.sendMessage(
         m.chat,
         {
-          image: { url: banner },
-          caption: menu.trim(),
+          ...messagePayload,
           contextInfo: {
             mentionedJid: owner ? [owner] : [],
             forwardingScore: 999,

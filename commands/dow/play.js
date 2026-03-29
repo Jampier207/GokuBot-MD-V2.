@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { ytDownload, ytSearch } from '../../lib/scrapers/youtube.js'
 
 export default {
@@ -7,8 +8,7 @@ export default {
   run: async (client, m, args, usedPrefix, command) => {
 
     if (!args[0]) {
-      return m.reply(
-`╭──────────────
+      return m.reply(`╭──────────────
 │ Ingrese canción o enlace
 ╰──────────────`)
     }
@@ -19,48 +19,40 @@ export default {
 
       if (!url.includes('youtu')) {
         const results = await ytSearch(args.join(' '))
-        if (!results[0]?.url) throw new Error('No se encontró resultado')
+        if (!results[0]) throw new Error('Sin resultados')
         url = results[0].url
       }
 
-      let data
+      await m.reply('⏳ Descargando audio...')
 
-      try {
-        data = await ytDownload(url, 'mp3', '128k')
-      } catch {
-        data = await ytDownload(url, 'mp3', '64k')
-      }
+      const data = await ytDownload(url, 'mp3', '128k')
 
-      if (!data || !data.url) {
-        throw new Error('No se obtuvo audio')
-      }
+      if (!data?.url) throw new Error('No se obtuvo audio')
 
-      const caption =
-`╭──────────────
-│ YOUTUBE AUDIO
-├──────────────
-│ Titulo   :: ${data.title || '-'}
-│ Canal    :: ${data.uploader || '-'}
-│ Calidad  :: ${data.quality}
-│ Tamaño   :: ${data.size || '-'}
-├──────────────
-│ Link     :: ${url}
-╰──────────────`
+      const res = await axios.get(data.url, {
+        responseType: 'arraybuffer',
+        timeout: 60000
+      })
+
+      const buffer = res.data
 
       await client.sendMessage(
         m.chat,
         {
-          audio: { url: data.url },
+          audio: buffer,
           mimetype: 'audio/mpeg'
         },
         { quoted: m }
       )
 
-      await m.reply(caption)
+      await m.reply(`╭──────────────
+│ AUDIO LISTO
+├──────────────
+│ ${data.title}
+╰──────────────`)
 
     } catch (e) {
-      await m.reply(
-`╭──────────────
+      await m.reply(`╭──────────────
 │ Error en ${usedPrefix + command}
 │ ${e.message}
 ╰──────────────`)

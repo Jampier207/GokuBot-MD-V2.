@@ -8,9 +8,11 @@ export default {
   run: async (client, m, args, usedPrefix, command) => {
 
     if (!args[0]) {
-      return m.reply(`╭──────────────
-│ Ingrese canción o enlace
-╰──────────────`)
+      return m.reply(`╔══════════════════╗
+║  YOUTUBE AUDIO   ║
+╠══════════════════╣
+║ Ingrese canción o enlace
+╚══════════════════╝`)
     }
 
     let url = args[0]
@@ -23,11 +25,23 @@ export default {
         url = results[0].url
       }
 
-      await m.reply('⏳ Descargando audio...')
-
       const data = await ytDownload(url, 'mp3', '128k')
 
       if (!data?.url) throw new Error('No se obtuvo audio')
+
+      const caption = `╔══════════════════╗
+║  YOUTUBE AUDIO   ║
+╠══════════════════╣
+║ Titulo   : ${data.title || '-'}
+║ Canal    : ${data.uploader || '-'}
+║ Calidad  : ${data.quality || '128k'}
+║ Tamaño   : ${data.size || '-'}
+║ Duracion : ${data.duration || '-'}
+╠══════════════════╣
+║ Enlace   : ${url}
+╚══════════════════╝`
+
+      await m.reply(caption)
 
       const res = await axios.get(data.url, {
         responseType: 'arraybuffer',
@@ -45,17 +59,13 @@ export default {
         { quoted: m }
       )
 
-      await m.reply(`╭──────────────
-│ AUDIO LISTO
-├──────────────
-│ ${data.title}
-╰──────────────`)
-
     } catch (e) {
-      await m.reply(`╭──────────────
-│ Error en ${usedPrefix + command}
-│ ${e.message}
-╰──────────────`)
+      await m.reply(`╔══════════════════╗
+║      ERROR       ║
+╠══════════════════╣
+║ Comando : ${usedPrefix + command}
+║ Motivo  : ${e.message}
+╚══════════════════╝`)
     }
   }
 }

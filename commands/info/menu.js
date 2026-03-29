@@ -5,7 +5,7 @@ import { commands } from '../../lib/commands.js'
 export default {
   command: ['menu', 'help'],
   category: 'info',
-  run: async (client, m, { usedPrefix }) => {
+  run: async (client, m, usedPrefix) => {
     try {
       const uptime = process.uptime()
       const hours = Math.floor(uptime / 3600)
@@ -19,16 +19,16 @@ export default {
       const botId = client.user.id.split(':')[0] + "@s.whatsapp.net"
       const settings = global.db.data?.settings?.[botId] || {}
       const botName = settings.namebot || '𝐆𝐎𝐊𝐔𝐁𝐎𝐓-𝐌𝐃'
-      const banner = 'https://files.catbox.moe/xq54k8.jpeg'
+      const banner = 'https://files.catbox.moe'
 
       const totalUsers = Object.keys(global.db.data?.users || {}).length
       const categories = {}
+      
+      const allCommands = Array.isArray(commands) ? commands : Object.values(commands)
 
-      const cmdsList = Array.isArray(commands) ? commands : Object.values(commands)
-
-      cmdsList.forEach(cmd => {
+      allCommands.forEach(cmd => {
         if (!cmd.command) return
-        const cat = cmd.category || 'general'
+        const cat = cmd.category || 'otros'
         if (!categories[cat]) categories[cat] = []
         categories[cat].push(cmd)
       })
@@ -40,17 +40,21 @@ export default {
       menu += `│ ⬭ 𝐔𝐬𝐮𝐚𝐫𝐢𝐨𝐬 › ${totalUsers}\n`
       menu += `└────────────────────────┘\n`
 
-      const sortedCategories = Object.keys(categories).sort()
-      for (const cat of sortedCategories) {
+      const sortedCats = Object.keys(categories).sort()
+
+      for (const cat of sortedCats) {
         menu += `\n───  ${cat.toUpperCase()}  ───\n`
-        const cmds = categories[cat]
-          .map(cmd => `› ${usedPrefix}${Array.isArray(cmd.command) ? cmd.command[0] : cmd.command}`)
+        const cmdList = categories[cat]
+          .map(cmd => {
+            const mainCmd = Array.isArray(cmd.command) ? cmd.command[0] : cmd.command
+            return `› ${usedPrefix}${mainCmd}`
+          })
           .join('\n')
-        menu += `${cmds}\n`
+        menu += `${cmdList}\n`
       }
 
       menu += `\n┌────────────────────────┐\n`
-      menu += `│  𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫: ᴊxᴍᴘɪᴇʀ²⁰⁷\n`
+      menu += `│  𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫: ᴊxᴍᴘɪᴇʀ²⁰⁷™\n`
       menu += `└────────────────────────┘`
 
       await client.sendMessage(m.chat, {
@@ -68,7 +72,6 @@ export default {
       }, { quoted: m })
 
     } catch (e) {
-      console.error(e)
       await m.reply("Error: " + e.message)
     }
   }

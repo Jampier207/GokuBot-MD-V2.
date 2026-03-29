@@ -21,7 +21,7 @@
     "npm": ">=10.9.4"
   },
   "dependencies": {
-    "zenbot-scraper": "github:AxelDev09/zenbot-scraper"
+    "zenbot-scraper": "github:AxelDev09/zenbot-scraper",
     "@babel/parser": "latest",
     "@vitalets/google-translate-api": "^8.0.0",
     "@whiskeysockets/baileys": "github:Ado21/BailMod",

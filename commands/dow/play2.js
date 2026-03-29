@@ -10,29 +10,38 @@ export default {
 
   run: async (client, m, args, usedPrefix, command) => {
 
-    if (!args) {
+    if (!args[0]) {
       return m.reply(`╔══════════════════╗\n║  YOUTUBE VIDEO   ║\n╠══════════════════╣\n║ Ingrese video o enlace\n╚══════════════════╝`)
     }
 
     try {
       await client.sendMessage(m.chat, { react: { text: '🔍', key: m.key } })
 
-      let url = args
+      let url = args.join(' ')
       if (!url.includes('youtu')) {
-        const search = await ytSearch(args.join(' '))
-        if (!search || !search) throw new Error('No encontré resultados.')
-        url = search.url
+        const search = await ytSearch(url)
+        if (!search || !search[0]) throw new Error('No encontré resultados.')
+        url = search[0].url
       }
 
-      const data = await ytDownload(url, 'video', '360p')
-      if (!data || !data.url) throw new Error('No se pudo obtener el enlace de descarga.')
+      let data = await ytDownload(url, 'video', '360p').catch(() => null)
+      
+      if (!data || !data.url) {
+        data = await ytDownload(url, 'video', '720p').catch(() => null)
+      }
+      
+      if (!data || !data.url) {
+        data = await ytDownload(url, 'video', 'auto').catch(() => null)
+      }
+
+      if (!data || !data.url) throw new Error('Sin formatos disponibles en este momento.')
 
       const caption = `╔══════════════════╗
 ║  YOUTUBE VIDEO   ║
 ╠══════════════════╣
 ║ Titulo   : ${data.title || 'Desconocido'}
 ║ Canal    : ${data.author || 'Desconocido'}
-║ Calidad  : ${data.quality || '360p'}
+║ Calidad  : ${data.quality || 'Procesando'}
 ║ Tamaño   : ${data.size || '---'}
 ╠══════════════════╣
 ║ Enlace   : ${url}
@@ -44,7 +53,7 @@ export default {
         externalAdReply: {
           showAdAttribution: true,
           title: newsletterName,
-          body: 'Descargando video...',
+          body: 'Enviando video...',
           previewType: 'VIDEO',
           thumbnailUrl: data.thumb,
           sourceUrl: url

@@ -8,38 +8,30 @@ export default {
   command: ['play2', 'mp4', 'ytmp4', 'ytvideo', 'playvideo'],
   category: 'downloader',
 
-  run: async (client, m, args, usedPrefix, command) => {
+  run: async (client, m, { args, usedPrefix, command }) => {
 
     if (!args[0]) {
-      return m.reply(`╔══════════════════╗
-║  YOUTUBE VIDEO   ║
-╠══════════════════╣
-║ Ingrese video o enlace
-╚══════════════════╝`)
+      return m.reply(`╔══════════════════╗\n║  YOUTUBE VIDEO   ║\n╠══════════════════╣\n║ Ingrese video o enlace\n╚══════════════════╝`)
     }
 
-    let url = args[0]
-
     try {
-
+      let url = args[0]
       if (!url.includes('youtu')) {
-        const results = await ytSearch(args.join(' '))
-        if (!results[0]) throw new Error('Sin resultados')
-        url = results[0].url
+        const search = await ytSearch(args.join(' '))
+        if (!search || !search[0]) throw new Error('No encontré resultados.')
+        url = search[0].url
       }
 
       const data = await ytDownload(url, 'video', '360p')
-
-      if (!data?.url) throw new Error('No se obtuvo video')
+      if (!data || !data.url) throw new Error('No se pudo obtener el enlace de descarga.')
 
       const caption = `╔══════════════════╗
 ║  YOUTUBE VIDEO   ║
 ╠══════════════════╣
-║ Titulo   : ${data.title || '-'}
-║ Canal    : ${data.uploader || '-'}
+║ Titulo   : ${data.title || 'Desconocido'}
+║ Canal    : ${data.author || 'Desconocido'}
 ║ Calidad  : ${data.quality || '360p'}
-║ Tamaño   : ${data.size || '-'}
-║ Duracion : ${data.duration || '-'}
+║ Tamaño   : ${data.size || '---'}
 ╠══════════════════╣
 ║ Enlace   : ${url}
 ╚══════════════════╝`
@@ -47,44 +39,29 @@ export default {
       const contextInfo = {
         forwardingScore: 999,
         isForwarded: true,
-        forwardedNewsletterMessageInfo: {
-          newsletterJid,
-          newsletterName
+        externalAdReply: {
+          showAdAttribution: true,
+          title: newsletterName,
+          body: 'Descargando video...',
+          previewType: 'VIDEO',
+          thumbnailUrl: data.thumb,
+          sourceUrl: url
         }
       }
 
-      await client.sendMessage(
-        m.chat,
-        {
-          image: { url: data.thumb },
-          caption
-        },
-        { quoted: m, contextInfo }
-      )
+      await client.sendMessage(m.chat, { 
+        image: { url: data.thumb }, 
+        caption 
+      }, { quoted: m, contextInfo })
 
-      const res = await axios.get(data.url, {
-        responseType: 'arraybuffer',
-        timeout: 120000
-      })
-
-      const buffer = res.data
-
-      await client.sendMessage(
-        m.chat,
-        {
-          video: buffer,
-          mimetype: 'video/mp4'
-        },
-        { quoted: m, contextInfo }
-      )
+      await client.sendMessage(m.chat, { 
+        video: { url: data.url }, 
+        mimetype: 'video/mp4',
+        fileName: `${data.title}.mp4`
+      }, { quoted: m, contextInfo })
 
     } catch (e) {
-      await m.reply(`╔══════════════════╗
-║      ERROR       ║
-╠══════════════════╣
-║ Comando : ${usedPrefix + command}
-║ Motivo  : ${e.message}
-╚══════════════════╝`)
+      await m.reply(`╔══════════════════╗\n║      ERROR       ║\n╠══════════════════╣\n║ Motivo: ${e.message}\n╚══════════════════╝`)
     }
   }
 }

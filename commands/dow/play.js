@@ -9,7 +9,7 @@ export default {
     if (!args[0]) {
       return m.reply(
 `╭──────────────
-│ Ingrese enlace o búsqueda
+│ Ingrese canción o enlace
 ╰──────────────`)
     }
 
@@ -22,56 +22,36 @@ export default {
         url = results[0].url
       }
 
-      const isAudio = args.includes('--mp3') || args.includes('-a')
-
       let data
 
       try {
-        data = await ytDownload(url, isAudio ? 'mp3' : 'video', isAudio ? '128k' : '360p')
+        data = await ytDownload(url, 'mp3', '128k')
       } catch {
-        try {
-          data = await ytDownload(url, isAudio ? 'mp3' : 'video', isAudio ? '128k' : '240p')
-        } catch {
-          data = await ytDownload(url, isAudio ? 'mp3' : 'video', isAudio ? '128k' : '144p')
-        }
+        data = await ytDownload(url, 'mp3', '64k')
       }
 
       const caption =
 `╭──────────────
-│ YOUTUBE DOWNLOAD
+│ YOUTUBE AUDIO
 ├──────────────
 │ Titulo   :: ${data.title || '-'}
 │ Canal    :: ${data.uploader || '-'}
 │ Calidad  :: ${data.quality}
 │ Tamaño   :: ${data.size || '-'}
-│ Tipo     :: ${data.type}
 ├──────────────
 │ Link     :: ${url}
 ╰──────────────`
 
-      if (data.type === 'audio') {
-        await client.sendMessage(
-          m.chat,
-          {
-            audio: { url: data.url },
-            mimetype: 'audio/mpeg',
-            fileName: 'youtube.mp3',
-            caption
-          },
-          { quoted: m }
-        )
-      } else {
-        await client.sendMessage(
-          m.chat,
-          {
-            video: { url: data.url },
-            mimetype: 'video/mp4',
-            fileName: 'youtube.mp4',
-            caption
-          },
-          { quoted: m }
-        )
-      }
+      await client.sendMessage(
+        m.chat,
+        {
+          audio: { url: data.url },
+          mimetype: 'audio/mpeg',
+          fileName: 'audio.mp3',
+          caption
+        },
+        { quoted: m }
+      )
 
     } catch (e) {
       await m.reply(

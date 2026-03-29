@@ -10,16 +10,18 @@ export default {
 
   run: async (client, m, args, usedPrefix, command) => {
 
-    if (!args[0]) {
+    if (!args) {
       return m.reply(`╔══════════════════╗\n║  YOUTUBE VIDEO   ║\n╠══════════════════╣\n║ Ingrese video o enlace\n╚══════════════════╝`)
     }
 
     try {
-      let url = args[0]
+      await client.sendMessage(m.chat, { react: { text: '🔍', key: m.key } })
+
+      let url = args
       if (!url.includes('youtu')) {
         const search = await ytSearch(args.join(' '))
-        if (!search || !search[0]) throw new Error('No encontré resultados.')
-        url = search[0].url
+        if (!search || !search) throw new Error('No encontré resultados.')
+        url = search.url
       }
 
       const data = await ytDownload(url, 'video', '360p')
@@ -54,6 +56,8 @@ export default {
         caption 
       }, { quoted: m, contextInfo })
 
+      await client.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+
       await client.sendMessage(m.chat, { 
         video: { url: data.url }, 
         mimetype: 'video/mp4',
@@ -61,6 +65,7 @@ export default {
       }, { quoted: m, contextInfo })
 
     } catch (e) {
+      await client.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
       await m.reply(`╔══════════════════╗\n║      ERROR       ║\n╠══════════════════╣\n║ Motivo: ${e.message}\n╚══════════════════╝`)
     }
   }

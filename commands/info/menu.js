@@ -55,7 +55,8 @@ Users      : ${totalUsers}
         const title = cat.charAt(0).toUpperCase() + cat.slice(1)
         menu += `\n╔═══[ ${title} ]═══╗\n`
         cmds.forEach(cmd => {
-          const name = `${usedPrefix}${cmd.alias?.[0] || 'unknown'}`
+          const cmdName = cmd.alias?.[0] || cmd.command?.[0] || 'unknown'
+          const name = /^[./]/.test(cmdName) ? cmdName : `${usedPrefix}${cmdName}`
           const description = cmd.desc || 'No description'
           menu += `│ ${name}\n`
           menu += `│  └─> ${description}\n`
@@ -69,7 +70,7 @@ Users      : ${totalUsers}
 ╚════════════════════╝
 `
 
-      const res = await fetch('https://files.catbox.moe/xq54k8.jpeg')
+      const res = await fetch(banner)
       const arrayBuffer = await res.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
 

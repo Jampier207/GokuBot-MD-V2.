@@ -6,8 +6,9 @@ import { commands } from '../../lib/commands.js'
 export default {
   command: ['menu', 'help'],
   category: 'info',
-  run: async (client, m, usedPrefix) => {
+  run: async (client, m, args) => {
     try {
+      const usedPrefix = args.usedPrefix
       const uptime = process.uptime()
       const hours = Math.floor(uptime / 3600)
       const minutes = Math.floor((uptime % 3600) / 60)
@@ -51,8 +52,8 @@ export default {
         menu += `\n───  ${cat.toUpperCase()}  ───\n`
         
         categories[cat].forEach(cmd => {
-          const name = Array.isArray(cmd.command) ? cmd.command[0] : cmd.command
-          if (name) {
+          if (cmd.command) {
+            const name = Array.isArray(cmd.command) ? cmd.command[0] : cmd.command
             menu += `› ${usedPrefix}${name}\n`
           }
         })

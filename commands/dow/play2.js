@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { ytDownload, ytSearch } from '../../lib/scrapers/youtube.js'
 
 export default {
@@ -7,8 +8,7 @@ export default {
   run: async (client, m, args, usedPrefix, command) => {
 
     if (!args[0]) {
-      return m.reply(
-`╭──────────────
+      return m.reply(`╭──────────────
 │ Ingrese video o enlace
 ╰──────────────`)
     }
@@ -19,47 +19,40 @@ export default {
 
       if (!url.includes('youtu')) {
         const results = await ytSearch(args.join(' '))
+        if (!results[0]) throw new Error('Sin resultados')
         url = results[0].url
       }
 
-      let data
+      await m.reply('⏳ Descargando video...')
 
-      try {
-        data = await ytDownload(url, 'video', '360p')
-      } catch {
-        try {
-          data = await ytDownload(url, 'video', '240p')
-        } catch {
-          data = await ytDownload(url, 'video', '144p')
-        }
-      }
+      const data = await ytDownload(url, 'video', '360p')
 
-      const caption =
-`╭──────────────
-│ YOUTUBE VIDEO
-├──────────────
-│ Titulo   :: ${data.title || '-'}
-│ Canal    :: ${data.uploader || '-'}
-│ Calidad  :: ${data.quality}
-│ Tamaño   :: ${data.size || '-'}
-├──────────────
-│ Link     :: ${url}
-╰──────────────`
+      if (!data?.url) throw new Error('No se obtuvo video')
+
+      const res = await axios.get(data.url, {
+        responseType: 'arraybuffer',
+        timeout: 120000
+      })
+
+      const buffer = res.data
 
       await client.sendMessage(
         m.chat,
         {
-          video: { url: data.url },
-          mimetype: 'video/mp4',
-          fileName: 'video.mp4',
-          caption
+          video: buffer,
+          mimetype: 'video/mp4'
         },
         { quoted: m }
       )
 
+      await m.reply(`╭──────────────
+│ VIDEO LISTO
+├──────────────
+│ ${data.title}
+╰──────────────`)
+
     } catch (e) {
-      await m.reply(
-`╭──────────────
+      await m.reply(`╭──────────────
 │ Error en ${usedPrefix + command}
 │ ${e.message}
 ╰──────────────`)

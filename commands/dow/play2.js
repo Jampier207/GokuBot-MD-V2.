@@ -18,35 +18,30 @@ export default {
       await client.sendMessage(m.chat, { react: { text: '🔍', key: m.key } })
 
       let url = args.join(' ')
-      let searchData = null
-
       if (!url.includes('youtu')) {
         const search = await ytSearch(url)
-        if (!search) throw new Error('No encontré resultados.')
-        url = search.url
-        searchData = search
+        if (!search || !search[0]) throw new Error('No encontré resultados.')
+        url = search[0].url
       }
 
-      let data = null
-      const qualities = ['360p', '480p', '720p', 'auto']
+      let data = await ytDownload(url, 'video', '360p').catch(() => null)
       
-      for (let q of qualities) {
-        try {
-          data = await ytDownload(url, 'video', q)
-          if (data && data.url) break
-        } catch (e) {
-          continue
-        }
+      if (!data || !data.url) {
+        data = await ytDownload(url, 'video', '720p').catch(() => null)
+      }
+      
+      if (!data || !data.url) {
+        data = await ytDownload(url, 'video', 'auto').catch(() => null)
       }
 
-      if (!data || !data.url) throw new Error('Sin formatos disponibles')
+      if (!data || !data.url) throw new Error('Sin formatos disponibles en este momento.')
 
       const caption = `╔══════════════════╗
 ║  YOUTUBE VIDEO   ║
 ╠══════════════════╣
-║ Titulo   : ${data.title || searchData?.title || 'Desconocido'}
-║ Canal    : ${data.author || searchData?.author || 'Desconocido'}
-║ Calidad  : ${data.quality || '360p'}
+║ Titulo   : ${data.title || 'Desconocido'}
+║ Canal    : ${data.author || 'Desconocido'}
+║ Calidad  : ${data.quality || 'Procesando'}
 ║ Tamaño   : ${data.size || '---'}
 ╠══════════════════╣
 ║ Enlace   : ${url}
@@ -55,15 +50,18 @@ export default {
       const contextInfo = {
         forwardingScore: 999,
         isForwarded: true,
-        forwardedNewsletterMessageInfo: {
-          newsletterJid,
-          newsletterName,
-          serverMessageId: 143
+        externalAdReply: {
+          showAdAttribution: true,
+          title: newsletterName,
+          body: 'Enviando video...',
+          previewType: 'VIDEO',
+          thumbnailUrl: data.thumb,
+          sourceUrl: url
         }
       }
 
       await client.sendMessage(m.chat, { 
-        image: { url: data.thumb || searchData?.thumbnail || '' }, 
+        image: { url: data.thumb }, 
         caption 
       }, { quoted: m, contextInfo })
 
@@ -72,8 +70,7 @@ export default {
       await client.sendMessage(m.chat, { 
         video: { url: data.url }, 
         mimetype: 'video/mp4',
-        fileName: `${data.title || 'video'}.mp4`,
-        caption: `🎥 ${data.title || ''}`
+        fileName: `${data.title}.mp4`
       }, { quoted: m, contextInfo })
 
     } catch (e) {

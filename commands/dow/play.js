@@ -1,6 +1,9 @@
 import axios from 'axios'
 import { ytDownload, ytSearch } from '../../lib/scrapers/youtube.js'
 
+const newsletterJid = '120363402960178567@newsletter'
+const newsletterName = '🌹 𝐆𝐨𝐤𝐮𝐁𝐨𝐭-𝐌𝐃 💖'
+
 export default {
   command: ['play', 'mp3', 'ytmp3', 'ytaudio', 'playaudio'],
   category: 'downloader',
@@ -8,17 +11,12 @@ export default {
   run: async (client, m, args, usedPrefix, command) => {
 
     if (!args[0]) {
-      return m.reply(`╔══════════════════╗
-║  YOUTUBE AUDIO   ║
-╠══════════════════╣
-║ Ingrese canción o enlace
-╚══════════════════╝`)
+      return m.reply(`╔══════════════════╗\n║  YOUTUBE AUDIO   ║\n╠══════════════════╣\n║ Ingrese canción o enlace\n╚══════════════════╝`)
     }
 
     let url = args[0]
 
     try {
-
       if (!url.includes('youtu')) {
         const results = await ytSearch(args.join(' '))
         if (!results[0]) throw new Error('Sin resultados')
@@ -26,26 +24,26 @@ export default {
       }
 
       const data = await ytDownload(url, 'mp3', '128k')
-
       if (!data?.url) throw new Error('No se obtuvo audio')
 
-      const caption = `╔══════════════════╗
-║  YOUTUBE AUDIO   ║
-╠══════════════════╣
-║ Titulo   : ${data.title || '-'}
-║ Canal    : ${data.uploader || '-'}
-║ Calidad  : ${data.quality || '128k'}
-║ Tamaño   : ${data.size || '-'}
-║ Duracion : ${data.duration || '-'}
-╠══════════════════╣
-║ Enlace   : ${url}
-╚══════════════════╝`
+      const caption = `╔══════════════════╗\n║  YOUTUBE AUDIO   ║\n╠══════════════════╣\n║ Titulo   : ${data.title || '-'}\n║ Canal    : ${data.uploader || '-'}\n║ Calidad  : ${data.quality || '128k'}\n║ Tamaño   : ${data.size || '-'}\n║ Duracion : ${data.duration || '-'}\n╠══════════════════╣\n║ Enlace   : ${url}\n╚══════════════════╝`
+
+      const contextInfo = {
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid,
+          newsletterName,
+          serverMessageId: 1
+        }
+      }
 
       await client.sendMessage(
         m.chat,
         {
           image: { url: data.thumb },
-          caption
+          caption,
+          contextInfo
         },
         { quoted: m }
       )
@@ -61,18 +59,14 @@ export default {
         m.chat,
         {
           audio: buffer,
-          mimetype: 'audio/mpeg'
+          mimetype: 'audio/mpeg',
+          contextInfo
         },
         { quoted: m }
       )
 
     } catch (e) {
-      await m.reply(`╔══════════════════╗
-║      ERROR       ║
-╠══════════════════╣
-║ Comando : ${usedPrefix + command}
-║ Motivo  : ${e.message}
-╚══════════════════╝`)
+      await m.reply(`╔══════════════════╗\n║      ERROR       ║\n╠══════════════════╣\n║ Comando : ${usedPrefix + command}\n║ Motivo  : ${e.message}\n╚══════════════════╝`)
     }
   }
 }

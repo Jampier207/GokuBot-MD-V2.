@@ -1,7 +1,7 @@
 import { ytDownload, ytSearch } from '../../lib/scrapers/youtube.js'
 
 export default {
-  command: ['play2', 'mp4', 'ytmp4', 'ytvideo', 'playvideo'],
+  command: ['play'],
   category: 'downloader',
 
   run: async (client, m, args, usedPrefix, command) => {
@@ -9,7 +9,7 @@ export default {
     if (!args[0]) {
       return m.reply(
 `╭──────────────
-│ Ingrese video o enlace
+│ Ingrese canción o enlace
 ╰──────────────`)
     }
 
@@ -19,24 +19,25 @@ export default {
 
       if (!url.includes('youtu')) {
         const results = await ytSearch(args.join(' '))
+        if (!results[0]?.url) throw new Error('No se encontró resultado')
         url = results[0].url
       }
 
       let data
 
       try {
-        data = await ytDownload(url, 'video', '360p')
+        data = await ytDownload(url, 'mp3', '128k')
       } catch {
-        try {
-          data = await ytDownload(url, 'video', '240p')
-        } catch {
-          data = await ytDownload(url, 'video', '144p')
-        }
+        data = await ytDownload(url, 'mp3', '64k')
+      }
+
+      if (!data || !data.url) {
+        throw new Error('No se obtuvo audio')
       }
 
       const caption =
 `╭──────────────
-│ YOUTUBE VIDEO
+│ YOUTUBE AUDIO
 ├──────────────
 │ Titulo   :: ${data.title || '-'}
 │ Canal    :: ${data.uploader || '-'}
@@ -49,13 +50,13 @@ export default {
       await client.sendMessage(
         m.chat,
         {
-          video: { url: data.url },
-          mimetype: 'video/mp4',
-          fileName: 'video.mp4',
-          caption
+          audio: { url: data.url },
+          mimetype: 'audio/mpeg'
         },
         { quoted: m }
       )
+
+      await m.reply(caption)
 
     } catch (e) {
       await m.reply(

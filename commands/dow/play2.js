@@ -8,7 +8,7 @@ export default {
   command: ['play2', 'mp4', 'ytmp4', 'ytvideo', 'playvideo'],
   category: 'downloader',
 
-  run: async (client, m, { args, usedPrefix, command }) => {
+  run: async (client, m, args, usedPrefix, command) => {
 
     if (!args[0]) {
       return m.reply(`╔══════════════════╗\n║  YOUTUBE VIDEO   ║\n╠══════════════════╣\n║ Ingrese video o enlace\n╚══════════════════╝`)

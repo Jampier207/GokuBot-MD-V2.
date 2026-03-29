@@ -19,6 +19,7 @@ export default {
 
       if (!url.includes('youtu')) {
         const results = await ytSearch(args.join(' '))
+        if (!results[0]?.url) throw new Error('No se encontró resultado')
         url = results[0].url
       }
 
@@ -28,6 +29,10 @@ export default {
         data = await ytDownload(url, 'mp3', '128k')
       } catch {
         data = await ytDownload(url, 'mp3', '64k')
+      }
+
+      if (!data || !data.url) {
+        throw new Error('No se obtuvo audio')
       }
 
       const caption =
@@ -46,12 +51,12 @@ export default {
         m.chat,
         {
           audio: { url: data.url },
-          mimetype: 'audio/mpeg',
-          fileName: 'audio.mp3',
-          caption
+          mimetype: 'audio/mpeg'
         },
         { quoted: m }
       )
+
+      await m.reply(caption)
 
     } catch (e) {
       await m.reply(

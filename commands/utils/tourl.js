@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+import axios from 'axios'
 import FormData from 'form-data'
 
 function formatBytes(bytes) {
@@ -8,45 +8,62 @@ function formatBytes(bytes) {
   return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`
 }
 
+function generateUniqueFilename(mime) {
+  const ext = mime.split('/')[1] || 'bin'
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let id = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  return `${id}.${ext}`
+}
+
+async function uploadToCatbox(buffer, mime) {
+  const form = new FormData()
+  form.append('reqtype', 'fileupload')
+  form.append('fileToUpload', buffer, { filename: generateUniqueFilename(mime) })
+
+  const res = await axios.post('https://catbox.moe/user/api.php', form, {
+    headers: form.getHeaders(),
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity
+  })
+
+  if (typeof res.data !== 'string' || !res.data.startsWith('https://')) {
+    throw new Error('✦ Error: respuesta inválida de Catbox')
+  }
+  return res.data.trim()
+}
+
 export default {
   command: ['tourl'],
   category: 'utils',
   run: async (client, m, args, command, text, prefix) => {
-    try {
-      const q = m.quoted || m
-      const mime = q.mimetype || q.msg?.mimetype || ''
-
-      if (!mime) return m.reply(`✎ Envía una imagen junto al comando *${prefix + command}*`)
-      if (!/image\/(png|jpe?g|gif)|video\/mp4/.test(mime)) {
-        return m.reply(`✎ Formato *${mime}* no compatible`)
-      }
-
-      const buffer = await q.download()
-      const url = await uploadToStellar(buffer, mime)
-
-      if (!url) return m.reply('✎ No se pudo subir el archivo')
-
-      const userName = global.db.data.users[m.sender]?.name || 'Usuario'
-      const peso = formatBytes(buffer.length)
-
-      const msg = `✎ URL lista
-────────────────
-• Link › ${url}
-• Peso › ${peso}
-• Solicitado por › ${userName}`
-
-      return m.reply(msg)
-    } catch (err) {
-      return m.reply(`✎ Error: ${err.name}\n✎ Mensaje: ${err.message}`)
+    const q = m.quoted || m
+    const mime = (q.msg || q).mimetype || ''
+    if (!mime) {
+      return client.reply(
+        m.chat,
+        '╔════════════════════╗\n' +
+        '║ ATENCIÓN ║\n' +
+        '╚════════════════════╝\n' +
+        `Debes responder a una imagen o video usando el comando *${prefix + command}* para obtener una URL.`,
+        m
+      )
     }
-  },
-}
 
-async function uploadToStellar(buffer, mime) {
-  const body = new FormData()
-  body.append('file', buffer, `file.${mime.split('/')[1]}`)
-  const res = await fetch('https://bot.stellarwa.xyz/upload', { method: 'POST', body, headers: body.getHeaders() })
-  if (!res.ok) throw new Error(`HTTP ${res.status} - ${res.statusText}`)
-  const json = await res.json()
-  return json.url
+    try {
+      const media = await q.download()
+      const link = await uploadToCatbox(media, mime)
+      const userName = global.db.data.users[m.sender]?.name || 'Usuario'
+
+      const message = 
+        '╔═━⊷ UPLOAD TO CATBOX ⊶━═╗\n' +
+        `> Link     : ${link}\n` +
+        `> Peso     : ${formatBytes(media.length)}\n` +
+        `> Solicitado por : ${userName}\n` +
+        '╚═══════════════════╝'
+
+      await client.sendMessage(m.chat, { text: message }, { quoted: m })
+    } catch (e) {
+      return m.reply('✦ Ocurrió un error al subir el archivo. Intenta nuevamente.')
+    }
+  }
 }

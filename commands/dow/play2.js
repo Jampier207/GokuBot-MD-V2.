@@ -10,7 +10,7 @@ export default {
 
   run: async (client, m, args, usedPrefix, command) => {
 
-    if (!args[0]) {
+    if (!args) {
       return m.reply(`╔══════════════════╗\n║  YOUTUBE VIDEO   ║\n╠══════════════════╣\n║ Ingrese video o enlace\n╚══════════════════╝`)
     }
 
@@ -20,8 +20,8 @@ export default {
       let url = args.join(' ')
       if (!url.includes('youtu')) {
         const search = await ytSearch(url)
-        if (!search || !search[0]) throw new Error('No encontré resultados.')
-        url = search[0].url
+        if (!search) throw new Error('No encontré resultados.')
+        url = search.url
       }
 
       let data = await ytDownload(url, 'video', '360p').catch(() => null)
@@ -34,7 +34,7 @@ export default {
         data = await ytDownload(url, 'video', 'auto').catch(() => null)
       }
 
-      if (!data || !data.url) throw new Error('Sin formatos disponibles en este momento.')
+      if (!data || !data.url) throw new Error('Sin formatos disponibles.')
 
       const caption = `╔══════════════════╗
 ║  YOUTUBE VIDEO   ║
@@ -50,13 +50,10 @@ export default {
       const contextInfo = {
         forwardingScore: 999,
         isForwarded: true,
-        externalAdReply: {
-          showAdAttribution: true,
-          title: newsletterName,
-          body: 'Enviando video...',
-          previewType: 'VIDEO',
-          thumbnailUrl: data.thumb,
-          sourceUrl: url
+        forwardedNewsletterMessageInfo: {
+          newsletterJid,
+          newsletterName,
+          serverMessageId: 143
         }
       }
 
@@ -70,7 +67,8 @@ export default {
       await client.sendMessage(m.chat, { 
         video: { url: data.url }, 
         mimetype: 'video/mp4',
-        fileName: `${data.title}.mp4`
+        fileName: `${data.title}.mp4`,
+        caption: `🎥 ${data.title}`
       }, { quoted: m, contextInfo })
 
     } catch (e) {

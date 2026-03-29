@@ -1,78 +1,94 @@
-import fetch from 'node-fetch'
+import { igdl } from '../../lib/scrapers/instagram.js'
 
 export default {
   command: ['instagram', 'ig', 'reel'],
   category: 'downloader',
-  run: async (client, m, args, command) => {
-    const botId = client.user.id.split(':')[0] + '@s.whatsapp.net'
+
+  run: async (client, m, args) => {
 
     if (!args.length) {
-      return m.reply('╭─❍ 「 📸 𝙄𝙣𝙨𝙩𝙖𝙜𝙧𝙖𝙢 」\n│ ✦ Ingresa un enlace de *Instagram*.\n╰───────────────❍')
+      return m.reply(
+        '┌─[ Instagram ]\n' +
+        '│ Ingresa un enlace válido\n' +
+        '└────────────'
+      )
     }
 
-    const urls = args.filter(arg => arg.match(/instagram\.com\/(p|reel|share|tv)\//))
+    const urls = args.filter(v =>
+      /https?:\/\/(www\.)?instagram\.com\/(p|reel|tv|share)\//.test(v)
+    )
+
     if (!urls.length) {
-      return m.reply('╭─❍ 「 ⚠️ Enlace inválido 」\n│ ✦ No es un enlace válido de *Instagram*.\n│ ✦ Verifica que sea un link correcto.\n╰───────────────❍')
+      return m.reply(
+        '┌─[ Error ]\n' +
+        '│ Enlace inválido\n' +
+        '└────────────'
+      )
     }
 
     try {
       if (urls.length > 1) {
         const medias = []
+
         for (const url of urls.slice(0, 10)) {
           try {
-            const res = await fetch(`${api.url}/dl/instagram?url=${encodeURIComponent(url)}&key=${api.key}`)
-            const json = await res.json()
-            if (!json.status || !json.data) continue
+            const res = await igdl(url)
 
-            if (json.data.length === 1) {
-              const media = json.data[0]
-              medias.push({ type: 'video', data: { url: media.url } })
-            } else {
-              for (const media of json.data.slice(0, 10)) {
-                medias.push({ type: 'image', data: { url: media.url || media.thumbnail } })
+            for (const media of res.slice(0, 10)) {
+              if (media.type === 'video') {
+                medias.push({ type: 'video', data: { url: media.url } })
+              } else {
+                medias.push({ type: 'image', data: { url: media.url } })
               }
             }
-          } catch (e) {
-            continue
-          }
+          } catch {}
         }
-        if (medias.length) {
-          await client.sendAlbumMessage(m.chat, medias, { quoted: m })
-        } else {
-          await m.reply('╭─❍ 「 ❌ Error 」\n│ ✦ No se pudo procesar el enlace.\n╰───────────────❍')
-        }
-      } else {
-        const url = urls[0]
-        const res = await fetch(`${api.url}/dl/instagram?url=${encodeURIComponent(url)}&key=${api.key}`)
-        const json = await res.json()
-        if (!json.status || !json.data) {
-          return client.reply(
-            m.chat,
-            '╭─❍ 「 ❌ Fallo en descarga 」\n│ ✦ No se pudo obtener el contenido.\n╰───────────────❍',
-            m
+
+        if (!medias.length) {
+          return m.reply(
+            '┌─[ Fallo ]\n' +
+            '│ No se pudo obtener contenido\n' +
+            '└────────────'
           )
         }
 
-        if (json.data.length === 1) {
-          const media = json.data[0]
+        await client.sendAlbumMessage(m.chat, medias, { quoted: m })
+
+      } else {
+        const res = await igdl(urls[0])
+
+        if (!res || !res.length) {
+          return m.reply(
+            '┌─[ Fallo ]\n' +
+            '│ No se pudo obtener contenido\n' +
+            '└────────────'
+          )
+        }
+
+        if (res.length === 1 && res[0].type === 'video') {
           await client.sendMessage(
             m.chat,
-            { video: { url: media.url }, mimetype: 'video/mp4', fileName: 'instagram.mp4' },
+            {
+              video: { url: res[0].url },
+              mimetype: 'video/mp4'
+            },
             { quoted: m }
           )
         } else {
-          const medias = []
-          for (const media of json.data.slice(0, 10)) {
-            medias.push({ type: 'image', data: { url: media.url || media.thumbnail } })
-          }
+          const medias = res.slice(0, 10).map(media => ({
+            type: media.type === 'video' ? 'video' : 'image',
+            data: { url: media.url }
+          }))
+
           await client.sendAlbumMessage(m.chat, medias, { quoted: m })
         }
       }
+
     } catch (e) {
-      await client.reply(
-        m.chat,
-        '╭─❍ 「 ⚡ Error inesperado 」\n│ ✦ Ocurrió un problema al ejecutar el comando.\n│ ✦ Intenta nuevamente más tarde.\n╰───────────────❍',
-        m
+      m.reply(
+        '┌─[ Error ]\n' +
+        '│ Ocurrió un problema\n' +
+        '└────────────'
       )
     }
   }

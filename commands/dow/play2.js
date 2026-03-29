@@ -49,8 +49,7 @@ export default {
         isForwarded: true,
         forwardedNewsletterMessageInfo: {
           newsletterJid,
-          newsletterName,
-          serverMessageId: 1
+          newsletterName
         }
       }
 

@@ -1,6 +1,9 @@
 import axios from 'axios'
 import { ytDownload, ytSearch } from '../../lib/scrapers/youtube.js'
 
+const newsletterJid = '120363402960178567@newsletter'
+const newsletterName = '🌹 GokuBot-MD ~ Jxmpier207 💖'
+
 export default {
   command: ['play2', 'mp4', 'ytmp4', 'ytvideo', 'playvideo'],
   category: 'downloader',
@@ -8,9 +11,11 @@ export default {
   run: async (client, m, args, usedPrefix, command) => {
 
     if (!args[0]) {
-      return m.reply(`╭──────────────
-│ Ingrese video o enlace
-╰──────────────`)
+      return m.reply(`╔══════════════════╗
+║  YOUTUBE VIDEO   ║
+╠══════════════════╣
+║ Ingrese video o enlace
+╚══════════════════╝`)
     }
 
     let url = args[0]
@@ -23,11 +28,40 @@ export default {
         url = results[0].url
       }
 
-      await m.reply('⏳ Descargando video...')
-
       const data = await ytDownload(url, 'video', '360p')
 
       if (!data?.url) throw new Error('No se obtuvo video')
+
+      const caption = `╔══════════════════╗
+║  YOUTUBE VIDEO   ║
+╠══════════════════╣
+║ Titulo   : ${data.title || '-'}
+║ Canal    : ${data.uploader || '-'}
+║ Calidad  : ${data.quality || '360p'}
+║ Tamaño   : ${data.size || '-'}
+║ Duracion : ${data.duration || '-'}
+╠══════════════════╣
+║ Enlace   : ${url}
+╚══════════════════╝`
+
+      const contextInfo = {
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid,
+          newsletterName,
+          serverMessageId: 1
+        }
+      }
+
+      await client.sendMessage(
+        m.chat,
+        {
+          image: { url: data.thumb },
+          caption
+        },
+        { quoted: m, contextInfo }
+      )
 
       const res = await axios.get(data.url, {
         responseType: 'arraybuffer',
@@ -42,20 +76,16 @@ export default {
           video: buffer,
           mimetype: 'video/mp4'
         },
-        { quoted: m }
+        { quoted: m, contextInfo }
       )
 
-      await m.reply(`╭──────────────
-│ VIDEO LISTO
-├──────────────
-│ ${data.title}
-╰──────────────`)
-
     } catch (e) {
-      await m.reply(`╭──────────────
-│ Error en ${usedPrefix + command}
-│ ${e.message}
-╰──────────────`)
+      await m.reply(`╔══════════════════╗
+║      ERROR       ║
+╠══════════════════╣
+║ Comando : ${usedPrefix + command}
+║ Motivo  : ${e.message}
+╚══════════════════╝`)
     }
   }
 }

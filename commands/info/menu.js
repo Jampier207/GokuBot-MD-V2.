@@ -76,7 +76,7 @@ const botName = settings.namebot || 'GOKUBOT-MD'
 `
 
 
-      const res = await fetch('https://bot.stellarwa.xyz/files/xQSur.jpg')
+      const res = await fetch('https://files.catbox.moe/xq54k8.jpeg')
       const arrayBuffer = await res.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
 

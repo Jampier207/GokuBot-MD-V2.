@@ -10,7 +10,7 @@ export default {
 
   run: async (client, m, args, usedPrefix, command) => {
 
-    if (!args) {
+    if (!args[0]) {
       return m.reply(`╔══════════════════╗\n║  YOUTUBE VIDEO   ║\n╠══════════════════╣\n║ Ingrese video o enlace\n╚══════════════════╝`)
     }
 
@@ -18,30 +18,35 @@ export default {
       await client.sendMessage(m.chat, { react: { text: '🔍', key: m.key } })
 
       let url = args.join(' ')
+      let searchData = null
+
       if (!url.includes('youtu')) {
         const search = await ytSearch(url)
         if (!search) throw new Error('No encontré resultados.')
         url = search.url
+        searchData = search
       }
 
-      let data = await ytDownload(url, 'video', '360p').catch(() => null)
+      let data = null
+      const qualities = ['360p', '480p', '720p', 'auto']
       
-      if (!data || !data.url) {
-        data = await ytDownload(url, 'video', '720p').catch(() => null)
-      }
-      
-      if (!data || !data.url) {
-        data = await ytDownload(url, 'video', 'auto').catch(() => null)
+      for (let q of qualities) {
+        try {
+          data = await ytDownload(url, 'video', q)
+          if (data && data.url) break
+        } catch (e) {
+          continue
+        }
       }
 
-      if (!data || !data.url) throw new Error('Sin formatos disponibles.')
+      if (!data || !data.url) throw new Error('Sin formatos disponibles')
 
       const caption = `╔══════════════════╗
 ║  YOUTUBE VIDEO   ║
 ╠══════════════════╣
-║ Titulo   : ${data.title || 'Desconocido'}
-║ Canal    : ${data.author || 'Desconocido'}
-║ Calidad  : ${data.quality || 'Procesando'}
+║ Titulo   : ${data.title || searchData?.title || 'Desconocido'}
+║ Canal    : ${data.author || searchData?.author || 'Desconocido'}
+║ Calidad  : ${data.quality || '360p'}
 ║ Tamaño   : ${data.size || '---'}
 ╠══════════════════╣
 ║ Enlace   : ${url}
@@ -58,7 +63,7 @@ export default {
       }
 
       await client.sendMessage(m.chat, { 
-        image: { url: data.thumb }, 
+        image: { url: data.thumb || searchData?.thumbnail || '' }, 
         caption 
       }, { quoted: m, contextInfo })
 
@@ -67,8 +72,8 @@ export default {
       await client.sendMessage(m.chat, { 
         video: { url: data.url }, 
         mimetype: 'video/mp4',
-        fileName: `${data.title}.mp4`,
-        caption: `🎥 ${data.title}`
+        fileName: `${data.title || 'video'}.mp4`,
+        caption: `🎥 ${data.title || ''}`
       }, { quoted: m, contextInfo })
 
     } catch (e) {

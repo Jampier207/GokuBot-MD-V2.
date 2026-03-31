@@ -1,12 +1,11 @@
 import axios from 'axios'
 import fs from 'fs'
 import { exec } from 'child_process'
+import crypto from 'crypto'
 import { pinvid } from '../../lib/scrapers/pinterest.js'
 
-function cleanUrl(url) {
-  return url
-    .replace(/\/\d+p\//, '/') 
-    .split('?')[0]
+function getHash(buffer) {
+  return crypto.createHash('md5').update(buffer).digest('hex')
 }
 
 export default {
@@ -24,20 +23,25 @@ export default {
       const medias = []
 
       for (const result of results) {
-        const raw = result.video || result.sd || result.original
-        if (!raw) continue
-
-        const url = cleanUrl(raw)
-
-        if (seen.has(url)) continue
-        seen.add(url)
+        const url = result.video || result.sd || result.original
+        if (!url) continue
 
         try {
+          const res = await axios.get(url, {
+            responseType: 'arraybuffer',
+            timeout: 15000
+          })
+
+          const buffer = res.data
+          const hash = getHash(buffer)
+
+          if (seen.has(hash)) continue
+          seen.add(hash)
+
           const input = `./tmp_${Date.now()}.mp4`
           const output = `./fix_${Date.now()}.mp4`
 
-          const res = await axios.get(raw, { responseType: 'arraybuffer' })
-          fs.writeFileSync(input, res.data)
+          fs.writeFileSync(input, buffer)
 
           await new Promise((resolve) => {
             exec(`ffmpeg -i ${input} -c copy -movflags +faststart ${output}`, () => resolve())
@@ -60,7 +64,7 @@ export default {
       }
 
       if (!medias.length) {
-        return m.reply('✦ Sin videos')
+        return m.reply('✦ Sin videos únicos')
       }
 
       await client.sendAlbumMessage(m.chat, medias, {

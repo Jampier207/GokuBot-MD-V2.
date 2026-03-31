@@ -13,15 +13,11 @@ export default {
     ].includes(m.sender)
 
     if (!isOwner2) return m.reply(
-`╭⎯⎯⎯⎯⎯
-│ ⟡ Solo el owner puede usar este comando
-╰⎯⎯⎯⎯⎯`
+`Solo el mi creador puede usar este comando.`
     )
 
     if (!args[0]) return m.reply(
-`╭⎯⎯⎯⎯⎯
-│ ⟡ Envíame el enlace del grupo
-╰⎯⎯⎯⎯⎯`
+`Envíe el enlace del grupo al qué me uniré.`
     )
 
     const text = args.join(' ')
@@ -30,9 +26,7 @@ export default {
 
     if (!match) {
       return m.reply(
-`╭⎯⎯⎯⎯⎯
-│ ⟡ Enlace inválido
-╰⎯⎯⎯⎯⎯`
+`Envie Un Link Válido.`
       )
     }
 
@@ -43,9 +37,7 @@ export default {
       await client.groupAcceptInvite(inviteCode)
 
       await m.reply(
-`╭⎯⎯⎯⎯⎯
-│ ⟡ Me uní correctamente al grupo
-╰⎯⎯⎯⎯⎯`
+`¡Me uní correctamente al grupo!`
       )
 
     } catch (e) {
@@ -58,20 +50,13 @@ export default {
       ) {
 
         await m.reply(
-`╭⎯⎯⎯⎯⎯
-│ ⟡ El grupo tiene aprobación activada
-│ ⟡ Envié solicitud para unirme
-│ ⟡ Espera que un admin la acepte
-╰⎯⎯⎯⎯⎯`
+` El grupo tiene la aprobación de admin activada, envié solicitud para unirme, espere que un admin la acepte.`
         )
 
       } else {
 
         await m.reply(
-`╭⎯⎯⎯⎯⎯
-│ ⟡ No pude unirme al grupo
-│ ⟡ Verifica el enlace
-╰⎯⎯⎯⎯⎯`
+`No pude unirme al grupo, verifique el link.`
         )
 
       }

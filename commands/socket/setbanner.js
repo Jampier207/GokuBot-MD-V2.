@@ -32,20 +32,20 @@ export default {
     const config = global.db.data.settings[idBot]
     const isOwner = [idBot, ...global.owner.map(num => num + '@s.whatsapp.net')].includes(m.sender)
     if (!isOwner && m.sender !== owner) return m.reply(
-      '╔══════════════╗\n║   PERMISO    ║\n╚══════════════╝\nNo puedes cambiar el banner del bot.'
+      '❖ No puedes cambiar el banner del bot.'
     )
 
     const value = args.join(' ').trim()
 
     if (!value && !m.quoted && !m.message.imageMessage && !m.message.videoMessage)
       return m.reply(
-        '╔════════════════════════╗\n║     BANNER NUEVO       ║\n╚════════════════════════╝\nEnvía o cita una imagen o video para actualizar el banner.'
+        '❖ Envía o cita una imagen o video para actualizar el banner.'
       )
 
     if (value.startsWith('http')) {
       config.banner = value
       return m.reply(
-        '╔════════════════════════╗\n║      BANNER ACTUALIZADO       ║\n╚════════════════════════╝\nEl banner del bot se ha actualizado correctamente.'
+        '❖ El banner del bot se ha actualizado correctamente.'
       )
     }
 
@@ -54,19 +54,19 @@ export default {
 
     if (!/image\/(png|jpe?g|gif)|video\/mp4/.test(mime))
       return m.reply(
-        '╔════════════════════════╗\n║     FORMATO INVÁLIDO    ║\n╚════════════════════════╝\nResponde a una imagen o video válido (png, jpg, gif, mp4).'
+        '❖ Responde a una imagen o video válido (png, jpg, gif, mp4).'
       )
 
     const media = await q.download()
     if (!media) return m.reply(
-      '╔════════════════════╗\n║   ERROR AL DESCARGAR  ║\n╚════════════════════╝\nNo se pudo descargar el archivo, intenta de nuevo.'
+      '❖ No se pudo descargar el archivo, intenta de nuevo.'
     )
 
     const link = await uploadToCatbox(media, mime)
     config.banner = link
 
     return m.reply(
-      '╔════════════════════════╗\n║     BANNER ACTUALIZADO       ║\n╚════════════════════════╝\nEl banner del bot se ha cambiado correctamente.\nPuedes verlo usando el comando de menú.'
+      '❖ El banner del bot se ha cambiado correctamente.\nPuedes verlo usando el comando *.menu*.'
     )
   }
 }

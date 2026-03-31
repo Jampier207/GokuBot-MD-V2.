@@ -28,10 +28,10 @@ export default function registerGroupEvents(conn) {
 
     if (anu.action === 'add' && chatData.welcome !== false) {
 
-      const caption = `➤ @${phone}
-❖ ${metadata.subject}
-※ ${members} miembros
-✦ usa /menu`
+      const caption = `➤ Bienvenidx Al Grupo @${phone}
+❖ Nombre Del Grupo: ${metadata.subject}
+※ Ahora Tenemos ${members} miembros
+✦ ¡Usa /menu para ver mis comandos!`
 
       await conn.sendMessage(chat, {
         image: { url: pp },
@@ -51,8 +51,8 @@ export default function registerGroupEvents(conn) {
 
     if ((anu.action === 'remove' || anu.action === 'leave') && chatData.welcome !== false) {
       const caption = `➤ @${phone}
-※ salió del grupo
-❖ ${members} restantes`
+※ ¡Salió Del Grupo, Ojalá Vuelva Pronto!
+❖ Ahora Quedamos ${members} restantes`
 
       await conn.sendMessage(chat, {
         image: { url: pp },

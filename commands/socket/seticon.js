@@ -12,7 +12,7 @@ async function uploadImageCatbox(buffer, mime) {
     body: form
   })
   const json = await res.json()
-  if (!json.status || !json.url) throw new Error('✦ Falló la subida a Catbox')
+  if (!json.status || !json.url) throw new Error('❖ Falló la subida a Catbox.')
   return json.url
 }
 
@@ -28,35 +28,34 @@ export default {
     const config = global.db.data.settings[idBot]
 
     const isOwner2 = [idBot, ...global.owner.map(n => n + '@s.whatsapp.net')].includes(m.sender)
-    if (!isOwner2) return m.reply('✦ Solo el propietario puede usar este comando.')
+    if (!isOwner2) return m.reply('❖ Solo el owner puede usar este comando.')
 
     const value = args.join(' ').trim()
 
     if (!value && !m.quoted && !m.message.imageMessage)
-      return m.reply('✦ Debes enviar o citar una imagen para cambiar el icon del bot.')
+      return m.reply('❖ Debes enviar o citar una imagen para cambiar el icon del bot.')
 
     if (value.startsWith('http')) {
       config.icon = value
-      return m.reply(`✦ Se ha actualizado el icon de *${config.namebot2 || 'Bot'}*!`)
+      return m.reply(`❖ Se ha actualizado el icon de *${config.namebot2 || 'Bot'}*!`)
     }
 
     const q = m.quoted ? m.quoted : m
     const mime = (q.msg || q).mimetype || q.mediaType || ''
 
     if (!/image\/(png|jpe?g|gif)/.test(mime))
-      return m.reply('✦ Responde a una imagen válida.')
+      return m.reply('❖ Responde a una imagen válida.')
 
     const media = await q.download()
-    if (!media) return m.reply('✦ No se pudo descargar la imagen.')
+    if (!media) return m.reply('❖ No se pudo descargar la imagen.')
 
     const link = await uploadImageCatbox(media, mime)
 
     config.icon = link
 
     return m.reply(
-      `╔═━⊷ ICON DEL BOT ACTUALIZADO ⊶━═╗\n` +
-      `> Nuevo icon:\n${link}\n` +
-      `╚═══════════════════════════════╝`
+      `❖ ICON DEL BOT ACTUALIZADO\n` +
+      `> Nuevo icon:\n${link}`
     )
   },
 }

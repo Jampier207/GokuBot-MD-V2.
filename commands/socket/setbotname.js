@@ -35,7 +35,7 @@ export default {
     return m.reply(
       '❖ NOMBRE DEL BOT ACTUALIZADO\n' +
       `> Nombre corto: *${short.trim()}*\n` +
-      `> Nombre largo: *${long.trim()}*`'
+      `> Nombre largo: *${long.trim()}*`
     )
   },
 }

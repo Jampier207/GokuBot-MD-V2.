@@ -3,6 +3,12 @@ import fs from 'fs'
 import { exec } from 'child_process'
 import { pinvid } from '../../lib/scrapers/pinterest.js'
 
+function cleanUrl(url) {
+  return url
+    .replace(/\/\d+p\//, '/') 
+    .split('?')[0]
+}
+
 export default {
   command: ['pinvid'],
   category: 'search',
@@ -12,22 +18,25 @@ export default {
     if (!args[0]) return m.reply('※ Ingresa texto o link')
 
     try {
-      const results = await pinvid(args.join(' '), 10)
+      const results = await pinvid(args.join(' '), 15)
 
       const seen = new Set()
       const medias = []
 
       for (const result of results) {
-        const url = result.video || result.sd || result.original
-        if (!url || seen.has(url)) continue
+        const raw = result.video || result.sd || result.original
+        if (!raw) continue
 
+        const url = cleanUrl(raw)
+
+        if (seen.has(url)) continue
         seen.add(url)
 
         try {
           const input = `./tmp_${Date.now()}.mp4`
           const output = `./fix_${Date.now()}.mp4`
 
-          const res = await axios.get(url, { responseType: 'arraybuffer' })
+          const res = await axios.get(raw, { responseType: 'arraybuffer' })
           fs.writeFileSync(input, res.data)
 
           await new Promise((resolve) => {

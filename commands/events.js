@@ -52,7 +52,7 @@ export default function registerGroupEvents(conn) {
     if ((anu.action === 'remove' || anu.action === 'leave') && chatData.welcome !== false) {
       const caption = `➤ @${phone}
 ※ ¡Salió Del Grupo, Ojalá Vuelva Pronto!
-❖ Ahora Quedamos ${members} restantes`
+❖ Ahora Quedamos ${members} Miembros Restantes.`
 
       await conn.sendMessage(chat, {
         image: { url: pp },

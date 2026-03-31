@@ -1,73 +1,47 @@
 import { pinsearch } from '../../lib/scrapers/pinterest.js'
 
-global.pinSessions = global.pinSessions || new Map()
-
 export default {
-  command: ['pin', 'next'],
+  command: ['pin', 'pinterest'],
   category: 'search',
 
-  run: async (client, m, args, command) => {
-
-    if (command === 'next') {
-      const session = global.pinSessions.get(m.sender)
-      if (!session) return m.reply('No hay búsqueda activa')
-
-      session.index++
-
-      if (session.index >= session.results.length) {
-        global.pinSessions.delete(m.sender)
-        return m.reply('No hay más resultados')
-      }
-
-      const item = session.results[session.index]
-
-      return client.sendMessage(
-        m.chat,
-        {
-          image: { url: item.image },
-          caption:
-            `Resultado ${session.index + 1}/${session.results.length}\n` +
-            `Búsqueda: ${session.text}`
-        },
-        { quoted: m }
-      )
-    }
+  run: async (client, m, args) => {
 
     const text = args.join(' ')
-    if (!text) return m.reply('Ingresa una búsqueda')
+    if (!text) return m.reply('✎ Ingresa una búsqueda')
 
     try {
       const results = await pinsearch(text, 10)
 
       if (!results || results.length === 0) {
-        return m.reply('Sin resultados')
+        return m.reply('✎ Sin resultados')
       }
 
-      global.pinSessions.set(m.sender, {
-        index: 4,
-        results,
-        text
-      })
+      const medias = []
 
-      const firstFive = results.slice(0, 5)
+      for (const result of results.slice(0, 10)) {
 
-      for (let i = 0; i < firstFive.length; i++) {
-        const item = firstFive[i]
+        const caption =
+          `➤ Pinterest Search\n\n` +
+          `${result.title ? `❖ Título: ${result.title}\n` : ''}` +
+          `${result.full_name ? `※ Autor: ${result.full_name}\n` : ''}` +
+          `${result.likes ? `✦ Likes: ${result.likes}\n` : ''}` +
+          `${result.created ? `✎ Fecha: ${result.created}` : ''}`
 
-        await client.sendMessage(
-          m.chat,
-          {
-            image: { url: item.image },
-            caption:
-              `Resultado ${i + 1}/${results.length}\n` +
-              `Búsqueda: ${text}`
-          },
-          { quoted: m }
-        )
+        medias.push({
+          type: 'image',
+          data: { url: result.hd || result.url },
+          caption
+        })
+      }
+
+      if (medias.length) {
+        await client.sendAlbumMessage(m.chat, medias, { quoted: m })
+      } else {
+        await m.reply('✎ No se pudieron procesar los resultados')
       }
 
     } catch (e) {
-      m.reply('Error: ' + e.message)
+      m.reply('✎ Error: ' + e.message)
     }
   }
 }

@@ -26,9 +26,8 @@ export default {
         {
           image: { url: item.image },
           caption:
-            `*Resultado ${session.index + 1}/${session.results.length}*\n` +
-            `*Búsqueda:* ${session.text}\n\n` +
-            `Usa *.next*`
+            `Resultado ${session.index + 1}/${session.results.length}\n` +
+            `Búsqueda: ${session.text}`
         },
         { quoted: m }
       )
@@ -45,24 +44,27 @@ export default {
       }
 
       global.pinSessions.set(m.sender, {
-        index: 0,
+        index: 4,
         results,
         text
       })
 
-      const first = results[0]
+      const firstFive = results.slice(0, 5)
 
-      await client.sendMessage(
-        m.chat,
-        {
-          image: { url: first.image },
-          caption:
-            `*Resultado 1/${results.length}*\n` +
-            `*Búsqueda:* ${text}\n\n` +
-            `Usa *.next*`
-        },
-        { quoted: m }
-      )
+      for (let i = 0; i < firstFive.length; i++) {
+        const item = firstFive[i]
+
+        await client.sendMessage(
+          m.chat,
+          {
+            image: { url: item.image },
+            caption:
+              `Resultado ${i + 1}/${results.length}\n` +
+              `Búsqueda: ${text}`
+          },
+          { quoted: m }
+        )
+      }
 
     } catch (e) {
       m.reply('Error: ' + e.message)

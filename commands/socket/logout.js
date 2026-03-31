@@ -21,28 +21,28 @@ export default {
 
     if (!sessionPath) {
       return m.reply?.(
-        '┌─[ ERROR ]\n│ Este comando solo puede ser usado desde una instancia de Sub-Bot\n└──────────'
-      ) ?? client.sendMessage(m.chat, { text: '┌─[ ERROR ]\n│ Este comando solo puede ser usado desde una instancia de Sub-Bot\n└──────────' });
+        '➤ Este comando solo puede ser usado desde una instancia de Sub-Bot'
+      ) ?? client.sendMessage(m.chat, { text: '➤ Este comando solo puede ser usado desde una instancia de Sub-Bot' });
     }
 
     try {
-      await (m.reply?.('┌─[ INFO ]\n│ Cerrando sesión del Socket...\n└──────────') ?? client.sendMessage(m.chat, { text: '┌─[ INFO ]\n│ Cerrando sesión del Socket...\n└──────────' }));
+      await (m.reply?.('➤ Cerrando sesión del Socket...') ?? client.sendMessage(m.chat, { text: '➤ Cerrando sesión del Socket...' }));
 
       await client.logout();
 
       setTimeout(() => {
         if (fs.existsSync(sessionPath)) {
           fs.rmSync(sessionPath, { recursive: true, force: true });
-          console.log(`┌─[ INFO ]\n│ Sesión de ${cleanId} eliminada de ${sessionPath}\n└──────────`);
+          console.log(`❖ Sesión de ${cleanId} eliminada de ${sessionPath}`);
         }
       }, 2000);
 
       setTimeout(() => {
-        const msg = `┌─[ SESIÓN FINALIZADA ]\n│ La sesión se cerró correctamente.\n│ Puedes reconectarte usando: ${usedPrefix}code\n└──────────`;
+        const msg = `➤ La sesión se cerró correctamente.\n│ Puedes reconectarte usando: ${usedPrefix}code\`;
         m.reply?.(msg) ?? client.sendMessage(m.chat, { text: msg });
       }, 3000);
     } catch (err) {
-      await (m.reply?.(`┌─[ ERROR ]\n│ ${msgglobal}\n└──────────`) ?? client.sendMessage(m.chat, { text: `┌─[ ERROR ]\n│ ${msgglobal}\n└──────────` }));
+      await (m.reply?.(`➤ ${msgglobal}`) ?? client.sendMessage(m.chat, { text: `➤ ${msgglobal}` }));
     }
   },
 };

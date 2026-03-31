@@ -22,7 +22,7 @@ export default {
     const isOwner = [idBot, ...(config.owner ? [config.owner] : []), ...global.owner.map(num => num + '@s.whatsapp.net')].includes(m.sender)
     
     if (!isOwner) {
-      return client.sendMessage(m.chat, { text: '╔══════════════╗\n║   PERMISO    ║\n╚══════════════╝\nNo puedes cambiar los prefijos.', contextInfo }, { quoted: m })
+      return client.sendMessage(m.chat, { text: '❖ Solo el owner puede cambiar los prefijos.', contextInfo }, { quoted: m })
     }
 
     const value = args.join(' ').trim()
@@ -33,9 +33,7 @@ export default {
         ? '`sin prefijos`' 
         : (Array.isArray(config.prefijo) ? config.prefijo : [config.prefijo || '/']).map(p => `\`${p}\``).join(', ')
       
-      const menuText = '╔════════════════════════╗\n' +
-        '║ CONFIGURACIÓN DE PREFIJOS ║\n' +
-        '╚════════════════════════╝\n\n' +
+      const menuText = 'CONFIGURACIÓN DE PREFIJOS\n' +
         `  » Multi-Prefix : ${prefix + command} *!/.+-#*\n` +
         `  » Reset        : ${prefix + command} *reset*\n` +
         `  » No-Prefix    : ${prefix + command} *noprefix*\n\n` +
@@ -47,7 +45,7 @@ export default {
     if (value.toLowerCase() === 'reset') {
       config.prefijo = defaultPrefix
       return client.sendMessage(m.chat, { 
-        text: '╔════════════════╗\n║ PREFIJOS RESTAURADOS ║\n╚════════════════╝\nSe han restaurado los prefijos: *' + defaultPrefix.join(' ') + '*' , 
+        text: '❖ Se han restaurado los prefijos: *' + defaultPrefix.join(' ') + '*' , 
         contextInfo 
       }, { quoted: m })
     }
@@ -55,7 +53,7 @@ export default {
     if (value.toLowerCase() === 'noprefix') {
       config.prefijo = true
       return client.sendMessage(m.chat, { 
-        text: '╔════════════════╗\n║ MODO SIN PREFIJOS ║\n╚════════════════╝\nSe activó correctamente el modo sin prefijos.', 
+        text: '❖ Se activó correctamente el modo sin prefijos.', 
         contextInfo 
       }, { quoted: m })
     }
@@ -71,21 +69,21 @@ export default {
 
     if (lista.length === 0) {
       return client.sendMessage(m.chat, { 
-        text: '╔══════════════╗\n║ PREFIJO INVÁLIDO ║\n╚══════════════╝\nNo se detectaron prefijos válidos. Usa símbolos o emojis.', 
+        text: '❖ No se detectaron prefijos válidos. Usa símbolos o emojis.', 
         contextInfo 
       }, { quoted: m })
     }
 
     if (lista.length > 6) {
       return client.sendMessage(m.chat, { 
-        text: '╔══════════════════╗\n║ LIMITE DE PREFIJOS ║\n╚══════════════════╝\nMáximo 6 prefijos permitidos.', 
+        text: '❖ Máximo 6 prefijos permitidos.', 
         contextInfo 
       }, { quoted: m })
     }
 
     config.prefijo = lista
     return client.sendMessage(m.chat, { 
-      text: '╔════════════════╗\n║ PREFIJOS ACTUALIZADOS ║\n╚════════════════╝\nSe cambió el prefijo a: *' + lista.join(' ') + '*', 
+      text: '❖ Se cambió el prefijo a: *' + lista.join(' ') + '*', 
       contextInfo 
     }, { quoted: m })
   }

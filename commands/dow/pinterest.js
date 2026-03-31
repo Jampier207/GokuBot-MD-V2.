@@ -1,4 +1,4 @@
-import { pinimg, pinsearch, pinvid } from '../../lib/pinterest.js'
+import { pinimg, pinsearch, pinvid } from '../../lib/scrapers/pinterest.js'
 
 export default {
   command: ['pin', 'pinterest'],

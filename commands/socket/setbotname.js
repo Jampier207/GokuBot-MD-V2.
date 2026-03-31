@@ -11,17 +11,13 @@ export default {
     
     if (!isOwner && m.sender !== owner) 
       return m.reply(
-        '╔══════════════╗\n' +
-        '║ ACCESO DENEGADO ║\n' +
-        '╚══════════════╝\nSolo el propietario puede usar este comando.'
+        '❖ Solo el owner puede usar este comando.'
       )
 
     const value = args.join(' ').trim()
     if (!value) 
       return m.reply(
-        '╔════════════════════════╗\n' +
-        '║ FORMATO INVÁLIDO ║\n' +
-        '╚════════════════════════╝\nDebes escribir un nombre corto y un nombre largo.\n' +
+        '❖ Sebes escribir un nombre corto y un nombre largo.\n' +
         `> Ejemplo: *${usedPrefix + command}* Goku / Goku Bot MD`
       )
 
@@ -30,19 +26,16 @@ export default {
 
     if (!short || !long)
       return m.reply(
-        '╔══════════════════════╗\n' +
-        '║ ERROR DE FORMATO ║\n' +
-        '╚══════════════════════╝\nUsa el formato: Nombre Corto / Nombre Largo'
+        '❖ Usa el formato: Nombre Corto / Nombre Largo'
       )
 
     config.namebot2 = short.trim()
     config.namebot = long.trim()
 
     return m.reply(
-      '╔═━⊷ NOMBRE DEL BOT ACTUALIZADO ⊶━═╗\n' +
+      '❖ NOMBRE DEL BOT ACTUALIZADO\n' +
       `> Nombre corto: *${short.trim()}*\n` +
-      `> Nombre largo: *${long.trim()}*\n` +
-      '╚═══════════════════════════════╝'
+      `> Nombre largo: *${long.trim()}*`'
     )
   },
 }

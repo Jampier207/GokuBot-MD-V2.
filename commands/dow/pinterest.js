@@ -1,47 +1,62 @@
-import { pinsearch } from '../../lib/scrapers/pinterest.js'
+import { pinimg, pinsearch, pinvid } from '../../lib/pinterest.js'
 
 export default {
   command: ['pin', 'pinterest'],
   category: 'search',
-
   run: async (client, m, args) => {
+    const newsletterJid = '120363402960178567@newsletter'
 
-    const text = args.join(' ')
-    if (!text) return m.reply('✎ Ingresa una búsqueda')
+    if (!args[0]) {
+      return client.sendMessage(m.chat, {
+        text: '※ Ingresa texto o link de Pinterest'
+      }, { quoted: m })
+    }
+
+    const input = args.join(' ')
 
     try {
-      const results = await pinsearch(text, 10)
+      let results
 
-      if (!results || results.length === 0) {
-        return m.reply('✎ Sin resultados')
+      if (input.includes('pin.it') || input.includes('pinterest.com/pin/')) {
+        const data = await pinimg(input, 5)
+
+        if (Array.isArray(data)) {
+          results = data.map(v => v.image)
+        } else {
+          results = [data.image]
+        }
+      } else {
+        const data = await pinsearch(input, 5)
+        results = data.map(v => v.image)
       }
 
-      const medias = []
+      if (!results.length) {
+        return client.sendMessage(m.chat, {
+          text: '✦ Sin resultados'
+        }, { quoted: m })
+      }
 
-      for (const result of results.slice(0, 10)) {
-
-        const caption =
-          `➤ Pinterest Search\n\n` +
-          `${result.title ? `❖ Título: ${result.title}\n` : ''}` +
-          `${result.full_name ? `※ Autor: ${result.full_name}\n` : ''}` +
-          `${result.likes ? `✦ Likes: ${result.likes}\n` : ''}` +
-          `${result.created ? `✎ Fecha: ${result.created}` : ''}`
-
-        medias.push({
-          type: 'image',
-          data: { url: result.hd || result.url },
-          caption
+      for (let img of results) {
+        await client.sendMessage(m.chat, {
+          image: { url: img },
+          caption: '✎ Resultado'
+        }, {
+          quoted: m,
+          contextInfo: {
+            forwardingScore: 999,
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+              newsletterJid,
+              newsletterName: '🌹 GokuBot-MD ~ Jxmpier207 💖'
+            }
+          }
         })
       }
 
-      if (medias.length) {
-        await client.sendAlbumMessage(m.chat, medias, { quoted: m })
-      } else {
-        await m.reply('✎ No se pudieron procesar los resultados')
-      }
-
     } catch (e) {
-      m.reply('✎ Error: ' + e.message)
+      client.sendMessage(m.chat, {
+        text: '※ Error al obtener resultados'
+      }, { quoted: m })
     }
   }
 }

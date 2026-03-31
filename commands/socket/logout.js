@@ -38,7 +38,7 @@ export default {
       }, 2000);
 
       setTimeout(() => {
-        const msg = `➤ La sesión se cerró correctamente.\n│ Puedes reconectarte usando: ${usedPrefix}code\`;
+        const msg = `➤ La sesión se cerró correctamente.\n│ Puedes reconectarte usando: ${usedPrefix}code`;
         m.reply?.(msg) ?? client.sendMessage(m.chat, { text: msg });
       }, 3000);
     } catch (err) {

@@ -7,33 +7,64 @@ export default {
   command: ['pinvid'],
   category: 'search',
   run: async (client, m, args) => {
+    const newsletterJid = '120363402960178567@newsletter'
+
     if (!args[0]) return m.reply('※ Ingresa texto o link')
 
     try {
-      const results = await pinvid(args.join(' '), 2)
+      const results = await pinvid(args.join(' '), 10)
+
+      const seen = new Set()
+      const medias = []
 
       for (const result of results) {
-        const url = result.video
-        if (!url) continue
+        const url = result.video || result.sd || result.original
+        if (!url || seen.has(url)) continue
 
-        const input = `./tmp_${Date.now()}.mp4`
-        const output = `./fix_${Date.now()}.mp4`
+        seen.add(url)
 
-        const res = await axios.get(url, { responseType: 'arraybuffer' })
-        fs.writeFileSync(input, res.data)
+        try {
+          const input = `./tmp_${Date.now()}.mp4`
+          const output = `./fix_${Date.now()}.mp4`
 
-        await new Promise((resolve) => {
-          exec(`ffmpeg -i ${input} -c copy -movflags +faststart ${output}`, () => resolve())
-        })
+          const res = await axios.get(url, { responseType: 'arraybuffer' })
+          fs.writeFileSync(input, res.data)
 
-        await client.sendMessage(m.chat, {
-          video: fs.readFileSync(output),
-          caption: '➤ Pinterest Video'
-        }, { quoted: m })
+          await new Promise((resolve) => {
+            exec(`ffmpeg -i ${input} -c copy -movflags +faststart ${output}`, () => resolve())
+          })
 
-        fs.unlinkSync(input)
-        fs.unlinkSync(output)
+          medias.push({
+            type: 'video',
+            data: fs.readFileSync(output),
+            caption: '➤ Pinterest Video'
+          })
+
+          fs.unlinkSync(input)
+          fs.unlinkSync(output)
+
+          if (medias.length >= 3) break
+
+        } catch {
+          continue
+        }
       }
+
+      if (!medias.length) {
+        return m.reply('✦ Sin videos')
+      }
+
+      await client.sendAlbumMessage(m.chat, medias, {
+        quoted: m,
+        contextInfo: {
+          forwardingScore: 999,
+          isForwarded: true,
+          forwardedNewsletterMessageInfo: {
+            newsletterJid,
+            newsletterName: '🌹 GokuBot-MD ~ Jxmpier207 💖'
+          }
+        }
+      })
 
     } catch {
       m.reply('※ Error al procesar video')

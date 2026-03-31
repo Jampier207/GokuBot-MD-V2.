@@ -17,26 +17,27 @@ export default {
     let medias = []
 
     try {
-      const results = await pinvid(input, 10)
+      const results = await pinvid(input, 5)
 
       for (const result of results) {
         const url = result.video || result.sd || result.original
         if (!url) continue
 
         try {
-          await axios.head(url, { timeout: 5000 })
+          const res = await axios.get(url, {
+            responseType: 'arraybuffer',
+            timeout: 15000
+          })
 
           const caption =
             `➤ Pinterest Video\n\n` +
-            `❖ Calidad HD disponible`
+            `❖ Calidad HD`
 
           medias.push({
             type: 'video',
-            data: { url },
+            data: res.data,
             caption
           })
-
-          if (medias.length >= 5) break
 
         } catch {
           continue
@@ -61,7 +62,7 @@ export default {
         }
       })
 
-    } catch (e) {
+    } catch {
       client.sendMessage(m.chat, {
         text: '※ Error al obtener videos'
       }, { quoted: m })

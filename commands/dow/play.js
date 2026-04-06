@@ -36,22 +36,18 @@ export default {
           const arrayBuffer = await response.arrayBuffer()
           thumbBuffer = Buffer.from(arrayBuffer)
         }
-      } catch (e) {
-        console.error('Error descargando thumbnail:', e)
-      }
+      } catch (e) {}
 
       const mp3Rows = videos.map((v, i) => ({
-        header: `${i + 1}`,
         title: String(v.title || 'Sin título').slice(0, 72),
         description: `🎵 MP3 | ⏱ ${v.timestamp || '??:??'} | 👤 ${v.author?.name || 'Desconocido'}`.slice(0, 72),
-        id: `.ytmp3 ${v.url}`
+        rowId: `.ytmp3 ${v.url}`
       }))
 
       const mp4Rows = videos.map((v, i) => ({
-        header: `${i + 1}`,
         title: String(v.title || 'Sin título').slice(0, 72),
         description: `🎬 MP4 | ⏱ ${v.timestamp || '??:??'} | 👤 ${v.author?.name || 'Desconocido'}`.slice(0, 72),
-        id: `.ytmp4 ${v.url}`
+        rowId: `.ytmp4 ${v.url}`
       }))
 
       if (thumbBuffer) {
@@ -63,7 +59,7 @@ export default {
               `🎵 *GokuBot-MD*\n\n` +
               `🔎 Resultado para: *${query}*\n` +
               `📌 Primer resultado: *${videos[0].title}*\n\n` +
-              `Selecciona formato abajo.`
+              `Selecciona una opción abajo`
           },
           { quoted: m }
         )
@@ -74,38 +70,35 @@ export default {
             text:
               `🎵 *GokuBot-MD*\n\n` +
               `🔎 Resultado para: *${query}*\n\n` +
-              `Selecciona formato abajo.`
+              `Selecciona una opción abajo`
           },
           { quoted: m }
         )
       }
 
       await client.sendMessage(
-  from,
-  {
-    text: `Resultados para: ${query}`,
-    footer: 'Descargas YouTube',
-    title: '🎵 Selecciona formato',
-    buttonText: 'Ver opciones',
-    sections: [
-      {
-        title: '🎵 Descargar MP3',
-        rows: mp3Rows
-      },
-      {
-        title: '🎬 Descargar MP4',
-        rows: mp4Rows
-      }
-    ]
-  },
-  { quoted: m }
-)
-
-      global.ytResults = global.ytResults || {}
-      global.ytResults[m.sender] = { mp3Rows, mp4Rows }
+        from,
+        {
+          text: `Resultados para: ${query}`,
+          footer: 'Descargas YouTube',
+          title: '🎧 Selecciona formato',
+          buttonText: 'Ver resultados',
+          sections: [
+            {
+              title: '🎵 Descargar MP3',
+              rows: mp3Rows
+            },
+            {
+              title: '🎬 Descargar MP4',
+              rows: mp4Rows
+            }
+          ]
+        },
+        { quoted: m }
+      )
 
     } catch (e) {
-      console.error('Error en play:', e)
+      console.error(e)
       return m.reply(`Error:\n${e?.message || e}`)
     }
   }

@@ -77,25 +77,25 @@ export default {
       }
 
       await client.sendMessage(
-        from,
-        {
-          text: `Resultados para: ${query}`,
-          footer: 'Descargas YouTube',
-          title: '🎧 Selecciona formato',
-          buttonText: 'Ver resultados',
-          sections: [
-            {
-              title: '🎵 Descargar MP3',
-              rows: mp3Rows
-            },
-            {
-              title: '🎬 Descargar MP4',
-              rows: mp4Rows
-            }
-          ]
-        },
-        { quoted: m }
-      )
+  from,
+  {
+    text: `Resultados para: ${query}`,
+    footer: 'Descargas YouTube',
+    title: '🎧 Selecciona formato',
+    buttonText: 'Abrir lista',
+    sections: [
+      {
+        title: '🎵 MP3',
+        rows: mp3Rows
+      },
+      {
+        title: '🎬 MP4',
+        rows: mp4Rows
+      }
+    ]
+  },
+  { quoted: m }
+)
 
     } catch (e) {
       console.error(e)

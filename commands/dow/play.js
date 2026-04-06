@@ -2,16 +2,18 @@ import yts from 'yt-search'
 import fetch from 'node-fetch'
 
 export default {
+  name: 'play',
   command: ['play'],
   category: 'descarga',
 
-  run: async (client, m, args) => {
+  async run(ctx) {
+    const { sock: conn, m, from, args } = ctx
+
     try {
-      const from = m.chat
-      const query = args.join(' ').trim()
+      const query = Array.isArray(args) ? args.join(' ').trim() : ''
 
       if (!query) {
-        return client.sendMessage(
+        return await conn.sendMessage(
           from,
           { text: 'Ejemplo:\n.play anuel aa' },
           { quoted: m }
@@ -22,7 +24,7 @@ export default {
       const videos = Array.isArray(res?.videos) ? res.videos.slice(0, 10) : []
 
       if (!videos.length) {
-        return client.sendMessage(
+        return await conn.sendMessage(
           from,
           { text: 'No encontré resultados.' },
           { quoted: m }
@@ -36,7 +38,7 @@ export default {
           const arrayBuffer = await response.arrayBuffer()
           thumbBuffer = Buffer.from(arrayBuffer)
         }
-      } catch (e) {}
+      } catch {}
 
       const mp3Rows = videos.map((v, i) => ({
         title: String(v.title || 'Sin título').slice(0, 72),
@@ -51,54 +53,47 @@ export default {
       }))
 
       if (thumbBuffer) {
-        await client.sendMessage(
+        await conn.sendMessage(
           from,
           {
             image: thumbBuffer,
             caption:
-              `🎵 *GokuBot-MD*\n\n` +
+              `🎵 *GOKUBOT-MD*\n\n` +
               `🔎 Resultado para: *${query}*\n` +
-              `📌 Primer resultado: *${videos[0].title}*\n\n` +
-              `Selecciona una opción abajo`
-          },
-          { quoted: m }
-        )
-      } else {
-        await client.sendMessage(
-          from,
-          {
-            text:
-              `🎵 *GokuBot-MD*\n\n` +
-              `🔎 Resultado para: *${query}*\n\n` +
-              `Selecciona una opción abajo`
+              `📌 Primer resultado: *${videos[0].title}*`
           },
           { quoted: m }
         )
       }
 
-      await client.sendMessage(
-  from,
-  {
-    text: `Resultados para: ${query}`,
-    footer: 'GokuBot-MD',
-    title: '🎧 Descargas YouTube',
-    buttonText: 'Seleccionar',
-    sections: [
-      {
-        title: '🎵 Descargar MP3',
-        rows: mp3Rows
-      },
-      {
-        title: '🎬 Descargar MP4',
-        rows: mp4Rows
-      }
-    ]
-  },
-  { quoted: m }
-)
+      await conn.sendMessage(
+        from,
+        {
+          text: `Resultados para: ${query}`,
+          footer: 'Descargas YouTube',
+          title: '🎧 Selecciona formato',
+          buttonText: 'Ver opciones',
+          sections: [
+            {
+              title: '🎵 Descargar MP3',
+              rows: mp3Rows
+            },
+            {
+              title: '🎬 Descargar MP4',
+              rows: mp4Rows
+            }
+          ]
+        },
+        { quoted: m }
+      )
+
     } catch (e) {
       console.error(e)
-      return m.reply(`Error:\n${e?.message || e}`)
+      return await conn.sendMessage(
+        from,
+        { text: `Error:\n${e?.message || e}` },
+        { quoted: m }
+      )
     }
   }
 }

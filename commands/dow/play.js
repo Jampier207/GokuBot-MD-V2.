@@ -81,26 +81,25 @@ export default {
       }
 
       await client.sendMessage(
-        from,
-        {
-          text: `Resultados para: ${query}`,
-          footer: 'Descargas YouTube',
-          buttons: [
-            {
-              buttonId: 'mp3_list',
-              buttonText: { displayText: '🎵 Descargar MP3' },
-              type: 1
-            },
-            {
-              buttonId: 'mp4_list',
-              buttonText: { displayText: '🎬 Descargar MP4' },
-              type: 1
-            }
-          ],
-          headerType: 1
-        },
-        { quoted: m }
-      )
+  from,
+  {
+    text: `Resultados para: ${query}`,
+    footer: 'Descargas YouTube',
+    title: '🎵 Selecciona formato',
+    buttonText: 'Ver opciones',
+    sections: [
+      {
+        title: '🎵 Descargar MP3',
+        rows: mp3Rows
+      },
+      {
+        title: '🎬 Descargar MP4',
+        rows: mp4Rows
+      }
+    ]
+  },
+  { quoted: m }
+)
 
       global.ytResults = global.ytResults || {}
       global.ytResults[m.sender] = { mp3Rows, mp4Rows }

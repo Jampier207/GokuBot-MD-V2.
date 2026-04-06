@@ -76,12 +76,13 @@ export default {
         )
       }
 
-      await client.sendMessage(from, {
-  listMessage: {
+      await client.sendMessage(
+  from,
+  {
+    text: `Resultados para: ${query}`,
+    footer: 'GokuBot-MD',
     title: '🎧 Descargas YouTube',
-    description: `Resultados para: ${query}`,
     buttonText: 'Seleccionar',
-    footerText: 'GokuBot-MD',
     sections: [
       {
         title: '🎵 Descargar MP3',
@@ -92,8 +93,9 @@ export default {
         rows: mp4Rows
       }
     ]
-  }
-}, { quoted: m })
+  },
+  { quoted: m }
+)
     } catch (e) {
       console.error(e)
       return m.reply(`Error:\n${e?.message || e}`)

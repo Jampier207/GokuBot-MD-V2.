@@ -1,72 +1,113 @@
-import axios from 'axios'
-import { ytDownload, ytSearch } from '../../lib/scrapers/youtube.js'
-
-const newsletterJid = '120363402960178567@newsletter'
-const newsletterName = '🌹 GokuBot-MD ~ Jxmpier207 💖'
+import yts from 'yt-search'
+import fetch from 'node-fetch'
 
 export default {
-  command: ['play', 'mp3', 'ytmp3', 'ytaudio', 'playaudio'],
-  category: 'downloader',
+  command: ['play'],
+  category: 'descarga',
 
-  run: async (client, m, args, usedPrefix, command) => {
-
-    if (!args[0]) {
-      return m.reply(`╔══════════════════╗\n║  YOUTUBE AUDIO   ║\n╠══════════════════╣\n║ Ingrese canción o enlace\n╚══════════════════╝`)
-    }
-
-    let url = args[0]
-
+  run: async (client, m, args) => {
     try {
-      if (!url.includes('youtu')) {
-        const results = await ytSearch(args.join(' '))
-        if (!results[0]) throw new Error('Sin resultados')
-        url = results[0].url
+      const from = m.chat
+      const query = args.join(' ').trim()
+
+      if (!query) {
+        return client.sendMessage(
+          from,
+          { text: 'Ejemplo:\n.play anuel aa' },
+          { quoted: m }
+        )
       }
 
-      const data = await ytDownload(url, 'mp3', '128k')
-      if (!data?.url) throw new Error('No se obtuvo audio')
+      const res = await yts(query)
+      const videos = Array.isArray(res?.videos) ? res.videos.slice(0, 10) : []
 
-      const caption = `╔══════════════════╗\n║  YOUTUBE AUDIO   ║\n╠══════════════════╣\n║ Titulo   : ${data.title || '-'}\n║ Canal    : ${data.uploader || '-'}\n║ Calidad  : ${data.quality || '128k'}\n║ Tamaño   : ${data.size || '-'}\n║ Duracion : ${data.duration || '-'}\n╠══════════════════╣\n║ Enlace   : ${url}\n╚══════════════════╝`
+      if (!videos.length) {
+        return client.sendMessage(
+          from,
+          { text: 'No encontré resultados.' },
+          { quoted: m }
+        )
+      }
 
-      const contextInfo = {
-        forwardingScore: 999,
-        isForwarded: true,
-        forwardedNewsletterMessageInfo: {
-          newsletterJid,
-          newsletterName,
-          serverMessageId: 1
+      let thumbBuffer = null
+      try {
+        if (videos[0]?.thumbnail) {
+          const response = await fetch(videos[0].thumbnail)
+          const arrayBuffer = await response.arrayBuffer()
+          thumbBuffer = Buffer.from(arrayBuffer)
         }
+      } catch (e) {
+        console.error('Error descargando thumbnail:', e)
+      }
+
+      const mp3Rows = videos.map((v, i) => ({
+        header: `${i + 1}`,
+        title: String(v.title || 'Sin título').slice(0, 72),
+        description: `🎵 MP3 | ⏱ ${v.timestamp || '??:??'} | 👤 ${v.author?.name || 'Desconocido'}`.slice(0, 72),
+        id: `.ytmp3 ${v.url}`
+      }))
+
+      const mp4Rows = videos.map((v, i) => ({
+        header: `${i + 1}`,
+        title: String(v.title || 'Sin título').slice(0, 72),
+        description: `🎬 MP4 | ⏱ ${v.timestamp || '??:??'} | 👤 ${v.author?.name || 'Desconocido'}`.slice(0, 72),
+        id: `.ytmp4 ${v.url}`
+      }))
+
+      if (thumbBuffer) {
+        await client.sendMessage(
+          from,
+          {
+            image: thumbBuffer,
+            caption:
+              `🎵 *GokuBot-MD*\n\n` +
+              `🔎 Resultado para: *${query}*\n` +
+              `📌 Primer resultado: *${videos[0].title}*\n\n` +
+              `Selecciona formato abajo.`
+          },
+          { quoted: m }
+        )
+      } else {
+        await client.sendMessage(
+          from,
+          {
+            text:
+              `🎵 *GokuBot-MD*\n\n` +
+              `🔎 Resultado para: *${query}*\n\n` +
+              `Selecciona formato abajo.`
+          },
+          { quoted: m }
+        )
       }
 
       await client.sendMessage(
-        m.chat,
+        from,
         {
-          image: { url: data.thumb },
-          caption,
-          contextInfo
+          text: `Resultados para: ${query}`,
+          footer: 'Descargas YouTube',
+          buttons: [
+            {
+              buttonId: 'mp3_list',
+              buttonText: { displayText: '🎵 Descargar MP3' },
+              type: 1
+            },
+            {
+              buttonId: 'mp4_list',
+              buttonText: { displayText: '🎬 Descargar MP4' },
+              type: 1
+            }
+          ],
+          headerType: 1
         },
         { quoted: m }
       )
 
-      const res = await axios.get(data.url, {
-        responseType: 'arraybuffer',
-        timeout: 60000
-      })
-
-      const buffer = res.data
-
-      await client.sendMessage(
-        m.chat,
-        {
-          audio: buffer,
-          mimetype: 'audio/mpeg',
-          contextInfo
-        },
-        { quoted: m }
-      )
+      global.ytResults = global.ytResults || {}
+      global.ytResults[m.sender] = { mp3Rows, mp4Rows }
 
     } catch (e) {
-      await m.reply(`╔══════════════════╗\n║      ERROR       ║\n╠══════════════════╣\n║ Comando : ${usedPrefix + command}\n║ Motivo  : ${e.message}\n╚══════════════════╝`)
+      console.error('Error en play:', e)
+      return m.reply(`Error:\n${e?.message || e}`)
     }
   }
 }

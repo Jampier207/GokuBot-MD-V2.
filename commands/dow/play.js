@@ -76,27 +76,24 @@ export default {
         )
       }
 
-      await client.sendMessage(
-  from,
-  {
-    text: `Resultados para: ${query}`,
-    footer: 'Descargas YouTube',
-    title: '🎧 Selecciona formato',
-    buttonText: 'Abrir lista',
+      await client.sendMessage(from, {
+  listMessage: {
+    title: '🎧 Descargas YouTube',
+    description: `Resultados para: ${query}`,
+    buttonText: 'Seleccionar',
+    footerText: 'GokuBot-MD',
     sections: [
       {
-        title: '🎵 MP3',
+        title: '🎵 Descargar MP3',
         rows: mp3Rows
       },
       {
-        title: '🎬 MP4',
+        title: '🎬 Descargar MP4',
         rows: mp4Rows
       }
     ]
-  },
-  { quoted: m }
-)
-
+  }
+}, { quoted: m })
     } catch (e) {
       console.error(e)
       return m.reply(`Error:\n${e?.message || e}`)
